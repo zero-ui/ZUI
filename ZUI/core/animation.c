@@ -16,10 +16,8 @@ ZuiVoid ZCALL OnPaint(ZuiControl p, ZuiAny Param1, ZuiAny Param2) {
         ZRect *rc = &p->m_rcItem;
         if (p->m_aAnime->steup * 10 > 255) {
             ZuiOsKillTimer_Id(p, 1);
-            //ZuiAlphaBlend(Param1, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, p->m_aAnime->m_hDcOffscreen, 0, 0, 255);
             return;
         }
-        //ZuiAlphaBlend(Param1, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, p->m_aAnime->m_hDcOffscreen, 0, 0, p->m_aAnime->steup * 10);
         
     }
 	return;
@@ -27,7 +25,7 @@ ZuiVoid ZCALL OnPaint(ZuiControl p, ZuiAny Param1, ZuiAny Param2) {
 ZuiVoid ZCALL OnSize(ZuiControl p, ZuiAny w, ZuiAny h) {
     if (p->m_aAnime->m_hDcOffscreen)
         ZuiDestroyGraphics(p->m_aAnime->m_hDcOffscreen);
-   p->m_aAnime->m_hDcOffscreen = ZuiCreateGraphicsInMemory((ZuiInt)w, (ZuiInt)h);
+   p->m_aAnime->m_hDcOffscreen = ZuiCreateGraphics((int)w, (int)h);
 }
 ZuiVoid ZCALL OnEvent(ZuiControl p, TEventUI *event) {
     if (event->Type == ZEVENT_TIMER && event->wParam==1) {
@@ -48,6 +46,5 @@ ZuiAnimation ZuiAnimationNew(ZuiAny Param1, ZuiAny Param2) {
 ZuiVoid ZuiAnimationFree(ZuiAnimation p) {
     if (!p)
         return;
-    //ZuiOsKillTimer_Id(p, 1);
     free(p);
 }

@@ -14,10 +14,10 @@
 
 typedef struct
 {
-    ZuiInt GdiplusVersion;
-    ZuiInt DebugEventCallback;
-    ZuiInt SuppressBackgroundThreadc;
-    ZuiInt SuppressExternalCodecs;
+    int GdiplusVersion;
+    int DebugEventCallback;
+    int SuppressBackgroundThreadc;
+    int SuppressExternalCodecs;
 }GdiplusStartupInput;
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +35,6 @@ extern "C" {
     int __stdcall GdipImageSelectActiveFrame(void *image, char *guid, int *index);
     int __stdcall GdipGetPropertyItemSize(void *, int, int*);
     int __stdcall GdipGetPropertyItem(void *, int, int, char*);
-    //int __stdcall CLSIDFromString(ZuiText *, char *);
     int __stdcall GdipDisposeImage(void *image);
     int __stdcall GdipDrawImageRectRectI(void *graphics, void *image, int dstx, int dsty, int dstwidth, int dstheight, int srcx, int srcy, int srcwidth, int srcheight, int srcUnit, void* imageAttributes, void *callback, void * callbackData);
     int __stdcall CreateStreamOnHGlobal(HGLOBAL hGlobal, BOOL fDeleteOnRelease, void **ppstm);
@@ -68,7 +67,7 @@ extern "C"
     };
     DArray* rcDarray;
 
-    ZuiInt pGdiToken;
+    int pGdiToken;
     /*初始化图形接口*/
     ZuiBool ZuiGraphInitialize() {
         GdiplusStartupInput gdiplusStartupInput;
@@ -152,7 +151,7 @@ extern "C"
         }
     }
     /*画文本(按照计算好的坐标)*/
-    ZEXPORT ZuiVoid ZCALL ZuiDrawStringPt(ZuiGraphics Graphics, ZuiFont Font, ZuiColor Color, ZuiText String, ZuiInt StrLens, ZPointR Pt[]) {
+    ZEXPORT ZuiVoid ZCALL ZuiDrawStringPt(ZuiGraphics Graphics, ZuiFont Font, ZuiColor Color, ZuiText String, int StrLens, ZPointR Pt[]) {
         if (String && Font && Graphics) {
             //指定文字颜色
             Graphics->graphics->graphics->fillColor(ARGBTORGBA8(Color));
@@ -163,7 +162,7 @@ extern "C"
             }
         }
     }
-    ZEXPORT ZuiVoid ZCALL ZuiDrawString(ZuiGraphics Graphics, ZuiFont Font, ZuiText String, ZuiInt StrLen, ZRectR *Rect, ZuiColor Color, ZuiUInt TextStyle) {
+    ZEXPORT ZuiVoid ZCALL ZuiDrawString(ZuiGraphics Graphics, ZuiFont Font, ZuiText String, int StrLen, ZRectR *Rect, ZuiColor Color, unsigned int TextStyle) {
         if (String && Font && Graphics) {
             //指定文字颜色
             Graphics->graphics->graphics->fillColor(ARGBTORGBA8(Color));
@@ -195,13 +194,13 @@ extern "C"
             if (Image->src.right)
                 Width = Image->src.right - xSrc;
             else
-                Width = (ZuiInt)(Image->Width - xSrc);
+                Width = (int)(Image->Width - xSrc);
         }
         if (Height <= 0) {
             if (Image->src.bottom)
                 Height = Image->src.bottom - ySrc;
             else
-                Height = (ZuiInt)(Image->Height - ySrc);
+                Height = (int)(Image->Height - ySrc);
         }
 
 
@@ -209,13 +208,13 @@ extern "C"
             if (Image->src.right)
                 WidthSrc = Image->src.right;
             else
-                WidthSrc = (ZuiInt)(Image->Width - xSrc);
+                WidthSrc = (int)(Image->Width - xSrc);
         }
         if (HeightSrc <= 0 || HeightSrc + ySrc > Image->Height) {
             if (Image->src.bottom)
                 HeightSrc = Image->src.bottom;
             else
-                HeightSrc = (ZuiInt)(Image->Height - ySrc);
+                HeightSrc = (int)(Image->Height - ySrc);
         }
 
         Graphics->graphics->graphics->transformImage(*Image->image->img, xSrc, ySrc, xSrc+WidthSrc, ySrc+HeightSrc,
@@ -223,12 +222,12 @@ extern "C"
         return;
     }
     /*复制位图*/
-    ZEXPORT ZuiVoid ZCALL ZuiAlphaBlendEx(ZuiGraphics Dest, ZuiInt srcX1, ZuiInt srcY1, ZuiInt srcX2, ZuiInt srcY2, ZuiInt dstX, ZuiInt dstY, ZuiGraphics Src, ZuiByte Alpha) {
+    ZEXPORT ZuiVoid ZCALL ZuiAlphaBlendEx(ZuiGraphics Dest, int srcX1, int srcY1, int srcX2, int srcY2, int dstX, int dstY, ZuiGraphics Src, ZuiByte Alpha) {
         if (Dest && Src) {
             Dest->graphics->graphics->blend(*Src->graphics->graphics, srcX1, srcY1, srcX2, srcY2, dstX, dstY, Alpha);
         }
     }
-    ZEXPORT ZuiVoid ZCALL ZuiBitBltEx(ZuiGraphics Dest, ZuiInt srcX1, ZuiInt srcY1, ZuiInt srcX2, ZuiInt srcY2, ZuiInt dstX, ZuiInt dstY, ZuiGraphics Src) {
+    ZEXPORT ZuiVoid ZCALL ZuiBitBltEx(ZuiGraphics Dest, int srcX1, int srcY1, int srcX2, int srcY2, int dstX, int dstY, ZuiGraphics Src) {
         if (Dest && Src) {
             Dest->graphics->graphics->copy(*Src->graphics->graphics, srcX1, srcY1, srcX2, srcY2, dstX, dstY);
         }
@@ -260,7 +259,7 @@ extern "C"
         }
     }
     /*创建图形*/
-    ZEXPORT ZuiGraphics ZCALL ZuiCreateGraphicsInMemory(ZuiInt Width, ZuiInt Height) {
+    ZEXPORT ZuiGraphics ZCALL ZuiCreateGraphicsInMemory(int Width, int Height) {
         ZuiGraphics Graphics = (ZuiGraphics)malloc(sizeof(ZGraphics));
         if (!Graphics) { return NULL; }
         memset(Graphics, 0, sizeof(ZGraphics));
@@ -305,7 +304,7 @@ extern "C"
         return Graphics;
     }
     /*附加到一块内存上*/
-    ZEXPORT ZuiGraphics ZCALL ZuiCreateGraphicsAttach(ZuiGraphics Graphics, ZuiAny bits, ZuiInt Width, ZuiInt Height, ZuiInt stride) {
+    ZEXPORT ZuiGraphics ZCALL ZuiCreateGraphicsAttach(ZuiGraphics Graphics, ZuiAny bits, int Width, int Height, int stride) {
         if (!Graphics) { return NULL; }
         if (Graphics->hdc) {
             DeleteDC(Graphics->hdc);
@@ -321,7 +320,7 @@ extern "C"
         Graphics->graphics->graphics->attach((agg::int8u *)Graphics->Bits, Width, Height, stride * 4);
         return Graphics;
     }
-    ZEXPORT ZuiBool ZCALL ZuiGraphicsPushClipRect(ZuiGraphics Graphics, ZuiRectR box, ZuiInt mode) {
+    ZEXPORT ZuiBool ZCALL ZuiGraphicsPushClipRect(ZuiGraphics Graphics, ZuiRectR box, int mode) {
         if (!Graphics)
             return FALSE;
         ZuiRectR prc = (ZuiRectR)malloc(sizeof(ZRectR));
@@ -331,7 +330,7 @@ extern "C"
         Graphics->graphics->graphics->clipBox(box->left, box->top, box->right, box->bottom);
         return TRUE;
     }
-    //ZEXPORT ZuiVoid ZCALL PushClipRegion(IRegion* pRegion, ZuiInt mode){}
+    //ZEXPORT ZuiVoid ZCALL PushClipRegion(IRegion* pRegion, int mode){}
     /*弹出剪裁区*/
     ZEXPORT ZuiBool ZCALL ZuiGraphicsPopClip(ZuiGraphics Graphics) {
         if (!Graphics)
@@ -389,7 +388,7 @@ extern "C"
 
 
     /*加载图像自内存*/
-    ZEXPORT ZuiImage ZCALL ZuiLoadImageFromBinary(ZuiAny buf, ZuiInt len) {
+    ZEXPORT ZuiImage ZCALL ZuiLoadImageFromBinary(ZuiAny buf, int len) {
         ZuiImage Image = (ZuiImage)malloc(sizeof(ZImage));
         if (!Image) { return NULL; }
         memset(Image, 0, sizeof(ZImage));

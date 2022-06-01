@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="gbk"?>
 <include src="default:default_ctl.xml" />
-<Window nobox="true"  borderwidth="1" bordercolor="#1874CD" bkcolor="0x282828" text="Demo" size="600,500" mininfo="300,200" center="true"  name="window_main" tooltip="主窗口">
+<Window nobox="true"  borderwidth="1" bordercolor="#FF888888" bkcolor="0xFF282828" text="Demo" size="600,500" mininfo="300,200" center="true"  name="window_main" tooltip="主窗口">
 		<HorizontalLayout name="head" drag="true"  height="23"><!--标题栏-->
-			<Label  name="titletxt" textcolor="#FFFFFFFF" text="你好Hello" tooltip="标题栏" font="font:name='微软雅黑':size=14" drag="true"/>
+			<Label  name="titletxt" text="你好Hello" tooltip="标题栏" font="font:name='微软雅黑':size=10:bold=true" drag="true"/>
 			<Include src="file:itest.xml" />
 			<WindowCtl name="ctl"/>
 		</HorizontalLayout>	
-		<NULL height="1" bkcolor="0x9933CC"/>
+		<NULL height="1" bkcolor="0xFF484848"/>
 		<VerticalLayout>
 			<List name="domainlist"  inset="0,0,0,0" itemshowhtml="true"  itemalign="center" itemaltbk="true" menu="true">
 						<ListHeader height="24" menu="true" name="header1" >
-							<ListHeaderItem text="N o" font="1" width="30" sepwidth="1"  textcolor="#FFFFFFFF" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
-							<ListHeaderItem text="Domain" font="1" width="50" sepwidth="1"  textcolor="#FFFFFFFF" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
-							<ListHeaderItem text="Description" width="240" align="right"  textcolor="#FFFFFFFF" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868" sepwidth="1"/>
-							<ListHeaderItem text="Domain" listfont="font:size=14:bold=true" width="260" sepwidth="1"  listalign="right"  textcolor="#FFFFFFFF" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
-							<ListHeaderItem text="Description" font="1" width="240" sepwidth="1"  textcolor="#FFFFFFFF" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
-							<ListHeaderItem text="Domain" font="1" width="260" sepwidth="1"  textcolor="#FFFFFFFF" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
-							<ListHeaderItem text="Description" font="1" width="240" sepwidth="1"  textcolor="#FFFFFFFF" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
+							<ListHeaderItem text="N o"  width="30" sepwidth="1" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
+							<ListHeaderItem text="Domain" width="50" sepwidth="1" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
+							<ListHeaderItem text="Description" width="240" align="right" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868" sepwidth="1"/>
+							<ListHeaderItem text="Domain" listfont="font:size=10:bold=true" width="260" sepwidth="1"  listalign="right" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
+							<ListHeaderItem text="Description" width="240" sepwidth="1" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
+							<ListHeaderItem text="Domain" width="260" sepwidth="1" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
+							<ListHeaderItem text="Description" width="240" sepwidth="1" sepcolor="#FF686868" normalcolor="#FF151515" hotcolor="#FF484848" pushedcolor="#FF686868"/>
 						</ListHeader>
-						<listbody  vscrollbar="true" hscrollbar="true"  sbbkcolor="#FF484848" stepsize="16"  sbbdisablecolor="#FF00FF00" sbb2show="true" sbhsrc="0,0,16,16" sbvsrc="0,90,16,16">
+						<listbody  vscrollbar="true" hscrollbar="true"  sbbkcolor="#FF484848" stepsize="16"  sbbdisablecolor="#FF282828" sbb2show="true" sbhsrc="0,0,16,16" sbvsrc="0,90,16,16">
 						<listelement height="24">
 							<Label text="11111"/>
 							<Label text="你好"/>
@@ -286,13 +286,15 @@
 					
 					</List>
 		</VerticalLayout>
-		<NULL height="1" bkcolor="#9933cc"/>
+		<NULL height="1" bkcolor="#FF888888"/>
 		<VerticalLayout  vscrollbar="true" hscrollbar="true" align="center" sbbkcolor="#FF484848"><!--状态栏-->
-			<NULL height="100" width="800"/>
-			<Button name="msgbox" text="对话框" textcolor="#FFFFFF" width="100" height="23"/>
-			<Option name="buttondisable" text="按钮禁用状态测试" textcolor="#FFFFFF" enabled="false" disabledcolor="#8c8c8c" width="150" height="23"/>
-			<Button name="buttonenable" text="启用" textcolor="#FFFFFF"  width="100" height="23"/>
-			<Label text="按钮禁用状态测试按钮禁用状态测试按钮禁用状态测试按" wordbreak="true" width="150" height="48"/>
+			<NULL height="100" width="2000"/>
+			<ProgressBar name="pbb" width="300" height="20" pbheight="10" pbpercent="50" bordercolor="#FF1874CD"/>
+			<Button bordercolor="#FF151515" name="msgbox" text="对话框"  width="100" height="23"/>
+			<Option name="buttondisable" text="按钮禁用状态测试"  enabled="false" disabledcolor="#FF8c8c8c" width="150" height="23"/>
+			<Button name="buttonenable" text="启用" width="100" height="23"/>
+			<Label width="100" name="wordbreak" text="块是  在论坛找的某位大佬的改的。" wordbreak="true"/>
 			<NULL "height"="100"  width="800"/>
 		</VerticalLayout>
+		<Button name="floatbutton" bordercolor="#FF151515" text="浮动按钮" round="20,20" width="100" height="40" float="150,150,0,0" />
 </Window>

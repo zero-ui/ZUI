@@ -18,8 +18,8 @@
 
 #if (defined PLATFORM_GRAPH_AGG)&&(PLATFORM_GRAPH_AGG == 1)
 	#include "graph/agg.h"
-#elif (defined PLATFORM_GRAPH_SKIA)&&(PLATFORM_GRAPH_SKIA == 1)
-	#include "graph/skia.h"
+#elif (defined PLATFORM_GRAPH_GDIX)&&(PLATFORM_GRAPH_GDIX == 1)
+    #include "graph/gdi+.h"
 #endif
 
 /*移植层接口定义头文件*/

@@ -6,9 +6,6 @@
 #include <platform/platform.h>
 
 #if (defined PLATFORM_OS_LINUX)
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-#include <duktape.h>
-#endif
 
 #define ZDC_ARROW 0
 
@@ -21,7 +18,6 @@ typedef struct _ZOsWindow
 
     //下面参数用于事件调度
 
-    //
     ZuiGraphics m_hDcOffscreen;     //内存缓冲区绘图DC
 
     char m_nOpacity;                //窗口透明度
@@ -52,11 +48,7 @@ typedef struct _ZOsWindow
     ZuiBool m_bUpdateNeeded;        //是否需要更新界面布局
     ZuiBool m_bFocusNeeded;         //是否需要焦点
     ZuiBool m_bOffscreenPaint;      //是否需要开双缓存绘图
-    
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-    duk_context *m_ctx;             ///JS引擎句柄
-#endif
-                                    //
+
     DArray *m_aTimers;              //时钟句柄数组
     DArray *m_aPostPaintControls;   //在绘制完成后发送绘制请求的控件集合
     DArray *m_aFoundControls;       //

@@ -16,7 +16,7 @@ uint32_t Zui_Hash(wchar_t* str);
 ZuiText ZuiCharNext(ZuiText str);
 
 //消息框
-ZEXPORT ZuiInt ZCALL ZuiMsgBox(ZuiControl rp,ZuiText text,ZuiText title);
+ZEXPORT int ZCALL ZuiMsgBox(ZuiControl rp,ZuiText text,ZuiText title);
 
 
 
@@ -31,13 +31,13 @@ ZEXPORT ZuiInt ZCALL ZuiMsgBox(ZuiControl rp,ZuiText text,ZuiText title);
 * @return 此函数没有返回值.
 */
 ZuiColor ZuiStr2Color(ZuiAny str);
-ZuiVoid ZuiStingSplitA(char* src, char* pSeparator, char **dest, ZuiInt *num);
-ZuiVoid ZuiStingSplit(ZuiText src, ZuiText pSeparator, ZuiText *dest, ZuiInt *num);
-ZuiBool ZuiStingIsUtf8(ZuiAny str, ZuiInt length);
-ZuiInt ZuiUtf8ToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen);
-ZuiInt ZuiAsciiToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen);
-ZuiInt ZuiUnicodeToAscii(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen);
-ZuiInt ZuiUnicodeToUtf8(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen);
+ZuiVoid ZuiStingSplitA(char* src, char* pSeparator, char **dest, int *num);
+ZuiVoid ZuiStingSplit(ZuiText src, ZuiText pSeparator, ZuiText *dest, int *num);
+ZuiBool ZuiStingIsUtf8(ZuiAny str, int length);
+int ZuiUtf8ToUnicode(ZuiAny str, int slen, ZuiText out, int olen);
+int ZuiAsciiToUnicode(ZuiAny str, int slen, ZuiText out, int olen);
+int ZuiUnicodeToAscii(ZuiText str, int slen, ZuiAny out, int olen);
+int ZuiUnicodeToUtf8(ZuiText str, int slen, ZuiAny out, int olen);
 
 
 #endif //__ZUI_CORE_FUNCTION_H__

@@ -40,12 +40,12 @@ typedef struct tagTEventUI
 {
     enum EVENTTYPE_UI Type; //事件类型
     ZuiControl pSender;     //事件对应的控件
-    ZuiInt dwTimestamp;     //时间戳
+    unsigned long long dwTimestamp;     //时间戳
     ZPoint ptMouse;         //鼠标位置
     ZText chKey;            //
-    ZuiInt wKeyState;       //
-    ZuiUInt wParam;         //
-    ZuiUInt lParam;         //
+    int wKeyState;       //
+    unsigned int wParam;         //
+    unsigned int lParam;         //
 } TEventUI;
 
 
@@ -65,7 +65,7 @@ ZuiBool ZuiOsSetWindowMin(ZuiOsWindow OsWindow);
 ZuiBool ZuiOsSetWindowMax(ZuiOsWindow OsWindow);
 // 此函数用做向下还原窗口
 ZuiBool ZuiOsSetWindowRestor(ZuiOsWindow OsWindow);
-ZuiBool ZuiOsSetWindowSize(ZuiOsWindow OsWindow, ZuiUInt w, ZuiUInt h);
+ZuiBool ZuiOsSetWindowSize(ZuiOsWindow OsWindow, unsigned int w, unsigned int h);
 ZuiBool ZuiOsSetWindowNoBox(ZuiOsWindow OsWindow, ZuiBool b);
 ZuiBool ZuiOsSetWindowComBo(ZuiOsWindow OsWindow, ZuiBool b);
 ZuiBool ZuiOsSetWindowTool(ZuiOsWindow OsWindow, ZuiBool b);
@@ -76,7 +76,7 @@ ZuiVoid ZuiOsWindowPopup(ZuiOsWindow OsWindow, ZuiPoint pt);
 ZuiVoid ZuiOsSetWindowCenter(ZuiOsWindow OsWindow);
 
 //设置光标
-ZuiVoid ZuiOsSetCursor(ZuiUInt type);
+ZuiVoid ZuiOsSetCursor(unsigned int type);
 //俘获输入
 ZuiVoid ZuiOsSetCapture(ZuiOsWindow OsWindow);
 //释放俘获
@@ -87,9 +87,9 @@ ZuiVoid ZuiOsInvalidate(ZuiOsWindow p);
 ZuiVoid ZuiOsInvalidateRect(ZuiOsWindow p, ZRect *rcItem);
 
 //创建时钟
-ZuiBool ZuiOsSetTimer(ZuiControl pControl, ZuiUInt nTimerID, ZuiUInt uElapse);
+ZuiBool ZuiOsSetTimer(ZuiControl pControl, unsigned int nTimerID, unsigned int uElapse);
 //销毁时钟
-ZuiBool ZuiOsKillTimer_Id(ZuiControl pControl, ZuiUInt nTimerID);
+ZuiBool ZuiOsKillTimer_Id(ZuiControl pControl, unsigned int nTimerID);
 //销毁时钟
 ZuiVoid ZuiOsKillTimer(ZuiControl pControl);
 //销毁全部时钟
@@ -101,17 +101,17 @@ ZuiVoid ZuiOsReapObjects(ZuiOsWindow p, ZuiControl pControl);
 //延迟销毁控件
 ZuiVoid ZuiOsAddDelayedCleanup(ZuiControl pControl,ZuiAny Param1,ZuiAny Param2);
 //系统消息循环
-ZuiInt ZuiOsMsgLoop();
+int ZuiOsMsgLoop();
 ZEXPORT ZuiVoid ZuiOsPostMessage(ZuiControl cp, ZuiAny Msg, ZuiAny Param1, ZuiAny Param2);
-ZEXPORT ZuiInt ZuiDoModel(ZuiControl cp);
+ZEXPORT int ZuiDoModel(ZuiControl cp);
 //退出系统消息循环
 ZuiVoid ZuiOsMsgLoopExit(int nRet);
 //投递一个任务到UI线程
-ZuiVoid ZuiOsPostTask(ZuiTask task);
-ZuiInt ZuiOsUtf8ToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen);
-ZuiInt ZuiOsAsciiToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen);
-ZuiInt ZuiOsUnicodeToAscii(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen);
-ZuiInt ZuiOsUnicodeToUtf8(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen);
+
+int ZuiOsUtf8ToUnicode(ZuiAny str, int slen, ZuiText out, int olen);
+int ZuiOsAsciiToUnicode(ZuiAny str, int slen, ZuiText out, int olen);
+int ZuiOsUnicodeToAscii(ZuiText str, int slen, ZuiAny out, int olen);
+int ZuiOsUnicodeToUtf8(ZuiText str, int slen, ZuiAny out, int olen);
 
 ZuiVoid ZuiOsClientToScreen(ZuiControl p, ZuiPoint pt);
 ZuiVoid ZuiOsScreenToClient(ZuiControl p, ZuiPoint pt);

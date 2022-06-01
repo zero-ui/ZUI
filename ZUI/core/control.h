@@ -26,36 +26,6 @@
 #define ZSTATE_READONLY     0x00000020
 #define ZSTATE_CAPTURED     0x00000040
 
-//------JSID
-#define Js_Id_close             1
-
-#define Js_Id_root              2
-#define Js_Id_parent            3
-#define Js_Id_text              4
-#define Js_Id_tooltip           5
-#define Js_Id_width             6
-#define Js_Id_height            7
-#define Js_Id_minwidth          8
-#define Js_Id_minheight         9
-#define Js_Id_maxwidth          10
-#define Js_Id_maxheight         11
-#define Js_Id_bkcolor           12
-#define Js_Id_drag              13
-#define Js_Id_rect              14
-#define Js_Id_enabled           15
-#define Js_Id_visible           16
-#define Js_Id_name              17
-#define Js_Id_padding           18
-#define Js_Id_left              19
-#define Js_Id_top               20
-
-#define Js_Id_onmouseleave      21
-#define Js_Id_onmouseenter      22
-#define Js_Id_onlbuttondown     23
-#define Js_Id_onclick           24
-#define Js_Id_onchar            25
-#define Js_Id_onsize            26
-
 
 typedef struct tagFINDTABINFO
 {
@@ -102,35 +72,21 @@ typedef struct _ZControl
     _ZuiText m_chShortcut;          //快捷键
     ZuiAny m_sUserData;              //
 
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-    //js_ref
-    ZuiInt m_rOnclick;
-    ZuiInt m_rOnmouseleave;
-    ZuiInt m_rOnmouseenter;
-    ZuiInt m_rOnlbuttondown;
-    ZuiInt m_rOnchar;
-    ZuiInt m_rOnsize;
-    //js_refend
-#endif
     //控件默认样式-------------------
-    ZuiInt m_tyle;                  //控件风格
+    int m_tyle;                  //控件风格
     ZuiColor m_BkgColor;            //背景颜色
     ZuiRes m_BkgImg;                //背景图片
     ZuiColor m_dwBorderColor;       //边框颜色
-	ZuiInt m_dwBorderWidth;
+	int m_dwBorderWidth;
     //控件默认样式-------------------
 
     ZuiAnimation m_aAnime;          //控件动画
 
     int m_nTooltipWidth;            //多行ToolTip单行最长宽度
-#if RUN_DEBUG
-    ZuiText m_sClassName;           //控件类名
-    ZuiAny  m_aTreeHwndl;           //在调试器中的树控件句柄
-#endif
 }*ZuiControl, ZControl;
 
 //控件默认处理函数
-ZEXPORT ZuiAny ZCALL ZuiDefaultControlProc(ZuiInt ProcId, ZuiControl p, ZuiAny UserData, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiDefaultControlProc(int ProcId, ZuiControl p, ZuiAny UserData, ZuiAny Param1, ZuiAny Param2);
 
 
 
@@ -151,7 +107,6 @@ ZEXPORT ZuiVoid ZCALL ZuiControlNeedUpdate(ZuiControl p);                       
 ZEXPORT ZuiVoid ZCALL ZuiControlNeedParentUpdate(ZuiControl p);                             //更新父控件布局
 ZEXPORT ZuiVoid ZCALL ZuiControlEvent(ZuiControl p, TEventUI *event);                       //发送事件
 
-                                                                                             //-------------------------------------------------------------------------------------------------
 ZuiControl ZCALL __FindControlFromCount(ZuiControl pThis, ZuiAny pData);//计算控件数量
 ZuiControl ZCALL __FindControlFromPoint(ZuiControl pThis, ZuiAny pData);//根据点是否在区域中，查询控件
 ZuiControl ZCALL __FindControlFromTab(ZuiControl pThis, ZuiAny pData);//通过Tab信息查询控件

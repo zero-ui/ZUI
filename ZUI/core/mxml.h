@@ -33,7 +33,7 @@ typedef struct mxml_attr_s		/**** XML元素节点的属性值 ****/
 typedef struct mxml_value_u		/**** XML元素值 ****/
 {
 	ZuiText			name;		/* Name of element */
-	ZuiInt			num_attrs;	/* Number of attributes */
+	int			num_attrs;	/* Number of attributes */
 	mxml_attr_t		*attrs;		/* Attributes */
 } mxml_value_t;
 
@@ -55,7 +55,7 @@ typedef struct mxml_buf			/**** XML 节点 ****/
 	int pos;
 }mxml_buf_t;
 
-mxml_node_t *mxmlLoadString(mxml_node_t *top, ZuiAny s, ZuiInt len);
+mxml_node_t *mxmlLoadString(mxml_node_t *top, ZuiAny s, int len);
 void mxmlAdd(mxml_node_t *parent, int where, mxml_node_t *child, mxml_node_t *node);
 mxml_node_t *mxmlFindElement(mxml_node_t *node, mxml_node_t *top, const wchar_t *name, const wchar_t *attr, const wchar_t *value, int descend);
 mxml_node_t *mxmlFindPath(mxml_node_t *top, const wchar_t *path);

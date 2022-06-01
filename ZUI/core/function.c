@@ -78,25 +78,13 @@ ZEXPORT ZuiBool ZCALL ZuiInit(ZuiInitConfig config) {
             Global_DefaultFontName = _wcsdup(lf.lfFaceName);
 #endif
         }
-        Global_Font = ZuiCreateFont(Global_DefaultFontName, 12, FALSE, FALSE);
+        Global_Font = ZuiCreateFont(Global_DefaultFontName, 10, FALSE, FALSE);
     }
     /*初始化模版管理器*/
     if (!ZuiTemplateInit())
     {
         return FALSE;
     }
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-    /*初始化导出接口*/
-    if (!ZuiInitZuvFunc())
-    {
-        return FALSE;
-    }
-    /*初始化绑定器*/
-    if (!ZuiBuilderInit())
-    {
-        return FALSE;
-    }
-#endif
     /*初始化导出接口*/
     if (!ZuiInitZuiFunc())
     {
@@ -120,10 +108,6 @@ ZEXPORT ZuiBool ZCALL ZuiUnInit() {
     ZuiClassUnInit();
     /*反初始化模版管理器*/
     ZuiTemplateUnInit();
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-    /*反初始化绑定器*/
-    ZuiBuilderUnInit();
-#endif
     /*反初始化资源池*/
     ZuiResDBUnInit();
     /*反初始化全局变量*/
@@ -145,28 +129,25 @@ ZEXPORT ZuiBool ZCALL ZuiUnInit() {
     ZuiGraphUnInitialize();
     return TRUE;
 }
-ZEXPORT ZuiInt ZCALL ZuiMsgLoop() {
+ZEXPORT int ZCALL ZuiMsgLoop() {
     return ZuiOsMsgLoop();
 }
 ZEXPORT ZuiVoid ZCALL ZuiMsgLoop_exit(int nRet) {
     ZuiOsMsgLoopExit(nRet);
 }
-ZEXPORT ZuiVoid ZCALL ZuiPostTask(ZuiTask task) {
-    ZuiOsPostTask(task);
-}
+
 
 ZuiControl MsgBox_pRoot;
 ZuiAny ZCALL MsgBox_Notify_ctl(ZuiText msg, ZuiControl p, ZuiAny UserData, ZuiAny Param1, ZuiAny Param2) {
-    if (wcscmp(msg, L"onclick") == 0)
+    if (_tcsicmp(msg, L"onclick") == 0)
     {
-        if (wcscmp(p->m_sName, L"WindowCtl_clos") == 0) {
+        if (_tcsicmp(p->m_sName, L"WindowCtl_clos") == 0) {
             ZuiControlCall(Proc_OnClose, p->m_pOs->m_pRoot, (ZuiAny)ZuiCANCEL, NULL);
-            //PostMessage(0, WM_APP + 10, 0, 0);
         }
-        else if (wcscmp(p->m_sName, L"ok") == 0) {
+        else if (_tcsicmp(p->m_sName, L"ok") == 0) {
             ZuiControlCall(Proc_OnClose, p->m_pOs->m_pRoot, (ZuiAny)ZuiOK, NULL);
         }
-        else if (wcscmp(p->m_sName, L"cancel") == 0) {
+        else if (_tcsicmp(p->m_sName, L"cancel") == 0) {
             ZuiControlCall(Proc_OnClose, p->m_pOs->m_pRoot, (ZuiAny)ZuiCANCEL, NULL);
         }
     }
@@ -174,16 +155,16 @@ ZuiAny ZCALL MsgBox_Notify_ctl(ZuiText msg, ZuiControl p, ZuiAny UserData, ZuiAn
 }
 
 ZuiAny ZCALL Default_NotifyProc(ZuiText msg, ZuiControl p, ZuiAny UserData, ZuiAny Param1, ZuiAny Param2) {
-    if (wcscmp(msg, L"onclose") == 0) {
+    if (_tcsicmp(msg, L"onclose") == 0) {
         ZuiOsAddDelayedCleanup(p, Param1, Param2);
     }
-    else if (wcscmp(msg, L"ondestroy") == 0) {
+    else if (_tcsicmp(msg, L"ondestroy") == 0) {
         ZuiMsgLoop_exit((int)Param1);
     }
     return 0;
 }
 
-ZEXPORT ZuiInt ZCALL ZuiMsgBox(ZuiControl rp, ZuiText text, ZuiText title) {
+ZEXPORT int ZCALL ZuiMsgBox(ZuiControl rp, ZuiText text, ZuiText title) {
     ZuiControl p;
     MsgBox_pRoot = NewZuiControl(L"MessageBox", NULL, rp);
     if (!MsgBox_pRoot->m_pOs) {
@@ -245,7 +226,7 @@ ZuiBool ZuiIsPointInRect(ZuiRect Rect, ZuiPoint pt) {
 
 
 
-ZuiBool ZuiStingIsUtf8(ZuiAny str, ZuiInt length)
+ZuiBool ZuiStingIsUtf8(ZuiAny str, int length)
 {
     int i;
     //UFT8可用1-6个字节编码,ASCII用一个字节
@@ -316,7 +297,7 @@ ZuiBool ZuiStingIsUtf8(ZuiAny str, ZuiInt length)
     return TRUE;
 }
 
-ZuiVoid ZuiStingSplitA(char* src, char* pSeparator, char **dest, ZuiInt *num)
+ZuiVoid ZuiStingSplitA(char* src, char* pSeparator, char **dest, int *num)
 {
     char* pStart, *pEnd;
     size_t sep_len;
@@ -345,7 +326,7 @@ ZuiVoid ZuiStingSplitA(char* src, char* pSeparator, char **dest, ZuiInt *num)
     *num = count;
 }
 
-ZuiVoid ZuiStingSplit(ZuiText src, ZuiText pSeparator, ZuiText *dest, ZuiInt *num)
+ZuiVoid ZuiStingSplit(ZuiText src, ZuiText pSeparator, ZuiText *dest, int *num)
 {
     ZuiText pStart, pEnd;
     size_t sep_len;
@@ -374,21 +355,21 @@ ZuiVoid ZuiStingSplit(ZuiText src, ZuiText pSeparator, ZuiText *dest, ZuiInt *nu
     *num = count;
 }
 
-ZuiInt ZuiUtf8ToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen)
+int ZuiUtf8ToUnicode(ZuiAny str, int slen, ZuiText out, int olen)
 {
     return ZuiOsUtf8ToUnicode(str, slen, out, olen);
 }
 
-ZuiInt ZuiAsciiToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen)
+int ZuiAsciiToUnicode(ZuiAny str, int slen, ZuiText out, int olen)
 {
     return ZuiOsAsciiToUnicode(str, slen, out, olen);
 }
 
-ZuiInt ZuiUnicodeToAscii(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen)
+int ZuiUnicodeToAscii(ZuiText str, int slen, ZuiAny out, int olen)
 {
     return ZuiOsUnicodeToAscii(str, slen, out, olen);
 }
-ZuiInt ZuiUnicodeToUtf8(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen) {
+int ZuiUnicodeToUtf8(ZuiText str, int slen, ZuiAny out, int olen) {
     return ZuiOsUnicodeToUtf8(str, slen, out, olen);
 }
 ZuiColor ZuiStr2Color(ZuiAny str)
@@ -407,5 +388,5 @@ ZuiColor ZuiStr2Color(ZuiAny str)
     else
         return clrColor;
     clrColor = _tcstoul((ZuiText)str, &pstr, 16);
-    return clrColor | 0xFF000000;
+    return clrColor;
 }

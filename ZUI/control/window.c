@@ -6,9 +6,6 @@
 #include <core/function.h>
 #include <layout/Layout.h>
 #include <layout/VerticalLayout.h>
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-#include <duktape.h>
-#endif
 
 typedef struct _ZWindows
 {
@@ -26,48 +23,9 @@ RB_GENERATE_STATIC(_ZWindows_Tree, _ZWindows, entry, ZWindows_Compare);
 static struct _ZWindows_Tree *m_window = NULL;
 DArray *m_window_array = NULL;
 
-ZEXPORT ZuiAny ZCALL ZuiWindowProc(ZuiInt ProcId, ZuiControl cp, ZuiWindow p, ZuiAny Param1, ZuiAny Param2) {
+ZEXPORT ZuiAny ZCALL ZuiWindowProc(int ProcId, ZuiControl cp, ZuiWindow p, ZuiAny Param1, ZuiAny Param2) {
     switch (ProcId)
     {
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-    case Proc_JsInit: {
-        ZuiBuilderControlInit(Param1, "SetWindowMin", Js_Id_Window_SetWindowMin, FALSE);
-        ZuiBuilderControlInit(Param1, "SetWindowMax", Js_Id_Window_SetWindowMax, FALSE);
-        ZuiBuilderControlInit(Param1, "SetWindowRestor", Js_Id_Window_SetWindowRestor, FALSE);
-        ZuiBuilderControlInit(Param1, "Popup", Js_Id_Window_Popup, FALSE);
-        break;
-    }
-    case Proc_JsCall: {
-        duk_context *ctx = (duk_context *)Param1;
-        switch ((ZuiInt)Param2)
-        {
-        case Js_Id_Window_SetWindowMin: {
-            ZuiControlCall(Proc_Window_SetWindowMin, cp, NULL, NULL, NULL);
-            return 0;
-        }
-        case Js_Id_Window_SetWindowMax: {
-            ZuiControlCall(Proc_Window_SetWindowMax, cp, NULL, NULL, NULL);
-            return 0;
-        }
-        case Js_Id_Window_SetWindowRestor: {
-            ZuiControlCall(Proc_Window_SetWindowRestor, cp, NULL, NULL, NULL);
-            return 0;
-        }
-        case Js_Id_Window_Popup: {
-            //        if (js_gettop(Param2) == 3) {
-            //            ZPoint pt = { js_toint32(Param2,1),js_toint32(Param2,2) };
-            //            ZuiControlCall(Proc_Window_Popup, cp, &pt, NULL, NULL);
-            //        }
-            //        else
-            //            ZuiControlCall(Proc_Window_Popup, cp, NULL, NULL, NULL);
-            return 0;
-        }
-        default:
-            break;
-        }
-        break;
-    }
-#endif
     case Proc_SetText: {
         return (ZuiAny)ZuiOsSetWindowTitle(p->m_osWindow, Param1);
     }
@@ -91,7 +49,7 @@ ZEXPORT ZuiAny ZCALL ZuiWindowProc(ZuiInt ProcId, ZuiControl cp, ZuiWindow p, Zu
         break;
     }
     case Proc_Window_SetSize: {
-        return (ZuiAny)(ZuiOsSetWindowSize(p->m_osWindow, (ZuiUInt)Param1, (ZuiUInt)Param2));
+        return (ZuiAny)(ZuiOsSetWindowSize(p->m_osWindow, (unsigned int)Param1, (unsigned int)Param2));
     }
     case Proc_Window_SetNoBox: {
         return (ZuiAny)(ZuiOsSetWindowNoBox(p->m_osWindow, (ZuiBool)Param1));
@@ -112,39 +70,33 @@ ZEXPORT ZuiAny ZCALL ZuiWindowProc(ZuiInt ProcId, ZuiControl cp, ZuiWindow p, Zu
         return 0;
     }
     case Proc_SetAttribute: {
-        if (wcscmp(Param1, L"nobox") == 0) ZuiControlCall(Proc_Window_SetNoBox, cp, (ZuiAny)(wcscmp(Param2, L"true") == 0 ? TRUE : FALSE), NULL);
-        else if (wcscmp(Param1, L"combo") == 0) ZuiControlCall(Proc_Window_SetComBo, cp, (ZuiAny)(wcscmp(Param2, L"true") == 0 ? TRUE : FALSE), NULL);
-        else if (wcscmp(Param1, L"toolwindow") == 0) ZuiControlCall(Proc_Window_SetToolWindow, cp, (ZuiAny)(wcscmp(Param2, L"true") == 0 ? TRUE : FALSE), NULL);
-        else if (wcscmp(Param1, L"layered") == 0) {
-            //if (wcscmp(Param2, L"true") == 0) {
-            //    ZuiPaintManagerSetLayered(p->m_pm, TRUE);
-            //}
-            //else {
-            //    ZuiPaintManagerSetLayered(p->m_pm, FALSE);
-           //}
+        if (_tcsicmp(Param1, _T("nobox")) == 0) ZuiControlCall(Proc_Window_SetNoBox, cp, (ZuiAny)(_tcsicmp(Param2, _T("true")) == 0 ? TRUE : FALSE), NULL);
+        else if (_tcsicmp(Param1, _T("combo")) == 0) ZuiControlCall(Proc_Window_SetComBo, cp, (ZuiAny)(_tcsicmp(Param2, _T("true")) == 0 ? TRUE : FALSE), NULL);
+        else if (_tcsicmp(Param1, _T("toolwindow")) == 0) ZuiControlCall(Proc_Window_SetToolWindow, cp, (ZuiAny)(_tcsicmp(Param2, _T("true")) == 0 ? TRUE : FALSE), NULL);
+        else if (_tcsicmp(Param1, _T("layered")) == 0) {
+
         }
-        //else if (wcscmp(Param1, L"opacity") == 0) ZuiPaintManagerSetLayeredOpacity(p->m_pm, _wtoi(Param2));
-        else if (wcscmp(Param1, L"mininfo") == 0) {
+        else if (_tcsicmp(Param1, _T("mininfo")) == 0) {
             ZuiText pstr = NULL;
             int cx = wcstol(Param2, &pstr, 10);  ASSERT(pstr);
             int cy = wcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
             ZuiControlCall(Proc_Window_SetMinInfo, cp, (ZuiAny)cx, (ZuiAny)cy);
         }
-        else if (wcscmp(Param1, L"maxinfo") == 0) {
+        else if (_tcsicmp(Param1, _T("maxinfo")) == 0) {
             ZuiText pstr = NULL;
             int cx = wcstol(Param2, &pstr, 10);  ASSERT(pstr);
             int cy = wcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
             ZuiControlCall(Proc_Window_SetMaxInfo, cp, (ZuiAny)cx, (ZuiAny)cy);
         }
-        else if (wcscmp(Param1, L"size") == 0) {
+        else if (_tcsicmp(Param1, _T("size")) == 0) {
             ZuiText pstr = NULL;
             int cx = wcstol(Param2, &pstr, 10);  ASSERT(pstr);
             int cy = wcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
             ZuiControlCall(Proc_Window_SetSize, cp, (ZuiAny)cx, (ZuiAny)cy);
         }
-        else if (wcscmp(Param1, L"name") == 0) {
+        else if (_tcsicmp(Param1, _T("name")) == 0) {
             if (cp->m_sName) {
-				if (wcscmp(cp->m_sName, Param2) != 0) {
+				if (_tcsicmp(cp->m_sName, Param2) != 0) {
 					//删除以前的名字
 					ZWindows theNode = { 0 };
 					ZWindows *c;
@@ -169,20 +121,13 @@ ZEXPORT ZuiAny ZCALL ZuiWindowProc(ZuiInt ProcId, ZuiControl cp, ZuiWindow p, Zu
                 RB_INSERT(_ZWindows_Tree, m_window, n);
                 cp->m_sName = _wcsdup(Param2);
         }
-        else if (wcscmp(Param1, L"center") == 0) {
-            if (wcscmp(Param2, L"true") == 0) {
+        else if (_tcsicmp(Param1, _T("center")) == 0) {
+            if (_tcsicmp(Param2, _T("true")) == 0) {
                 ZuiControlCall(Proc_Window_Center, cp, NULL, NULL);
             }
         }
-        else if (wcscmp(Param1, L"desktop") == 0) {
+        else if (_tcsicmp(Param1, _T("desktop")) == 0) {
             //嵌入桌面
-            //if (wcscmp(Param2, L"true") == 0) {
-            //    SetParent(p->m_hWnd, findDesktopIconWnd());
-            //}
-            //else
-            //{
-            //    SetParent(p->m_hWnd, NULL);
-            //}
         }
         break;
     }
@@ -193,7 +138,7 @@ ZEXPORT ZuiAny ZCALL ZuiWindowProc(ZuiInt ProcId, ZuiControl cp, ZuiWindow p, Zu
         break;
     }
     case Proc_GetObject:
-        if (Param1 == (ZuiAny)Type_Window)
+        if (_tcsicmp(Param1, (ZuiAny)Type_Window) == 0)
             return (ZuiAny)p;
         break;
     case Proc_GetType: {
@@ -201,7 +146,7 @@ ZEXPORT ZuiAny ZCALL ZuiWindowProc(ZuiInt ProcId, ZuiControl cp, ZuiWindow p, Zu
     }
 	case Proc_SetPos: {
 		if (cp->m_pOs->m_bMax) {
-			ZuiInt tmpwidth = cp->m_dwBorderWidth;
+			int tmpwidth = cp->m_dwBorderWidth;
 			cp->m_dwBorderWidth = 0;
 			p->old_call(ProcId, cp, p->old_udata, Param1, Param2);
 			cp->m_dwBorderWidth = tmpwidth;

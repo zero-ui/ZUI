@@ -7,17 +7,12 @@
 
 #if (defined PLATFORM_OS_WIN)
 
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-#include <duktape.h>
-#endif
 
 
 /*系统头文件*/
 #include <windows.h>
 #include <olectl.h>
-#if ((defined HAVE_UV) && (HAVE_UV == 1))
-#include <uv.h>
-#endif
+
 #include <windowsx.h>
 #include <commctrl.h>
 #include <tchar.h>
@@ -87,9 +82,6 @@ typedef struct _ZOsWindow
     ZuiBool m_bUpdateNeeded;        //是否需要更新界面布局
     ZuiBool m_bFocusNeeded;         //是否需要焦点
     ZuiBool m_bOffscreenPaint;      //是否需要开双缓存绘图
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-    duk_context *m_ctx;             ///JS引擎句柄
-#endif
     //
     DArray *m_aTimers;              //时钟句柄数组
     DArray *m_aPostPaintControls;   //在绘制完成后发送绘制请求的控件集合

@@ -33,30 +33,21 @@ ZuiBool ZuiClassInit()
     Global_ControlClass = (struct _ZClass_Tree *)malloc(sizeof(struct _ZClass_Tree));
     memset(Global_ControlClass, 0, sizeof(struct _ZClass_Tree));
     /*核心组件 不可卸载*/
-    ZuiControlRegisterAdd(L"layout", (ZCtlProc)&ZuiLayoutProc);
-    ZuiControlRegisterAdd(L"verticallayout", (ZCtlProc)&ZuiVerticalLayoutProc);
-    ZuiControlRegisterAdd(L"horizontallayout", (ZCtlProc)&ZuiHorizontalLayoutProc);
-    ZuiControlRegisterAdd(L"tablayout", (ZCtlProc)&ZuiTabLayoutProc);
-    ZuiControlRegisterAdd(L"tilelayout", (ZCtlProc)&ZuiTileLayoutProc);
-    //ZuiControlRegisterAdd(L"virtual", (ZCtlProc)&ZuiVirtualProc);
-    //ZuiControlRegisterAdd(L"menubar", (ZCtlProc)&ZuiMenuBarProc);
-    //ZuiControlRegisterAdd(L"menu", (ZCtlProc)&ZuiMenuProc);
-
-
-    ZuiControlRegisterAdd(L"window", (ZCtlProc)&ZuiWindowProc);
-    //ZuiControlRegisterAdd(L"html", (ZCtlProc)&ZuiHtmlProc);
-    ZuiControlRegisterAdd(L"scrollbar", (ZCtlProc)&ZuiScrollBarProc);
-    ZuiControlRegisterAdd(L"splitterbar", (ZCtlProc)&ZuiSplitterBarProc);
-    ZuiControlRegisterAdd(L"label", (ZCtlProc)&ZuiLabelProc);
-    ZuiControlRegisterAdd(L"ProgressBar", (ZCtlProc)&ZuiProgressBarProc);
-    ZuiControlRegisterAdd(L"button", (ZCtlProc)&ZuiButtonProc);
-    //ZuiControlRegisterAdd(L"browser", (ZCtlProc)&ZuiBrowserProc);
-    //ZuiControlRegisterAdd(L"edit", (ZCtlProc)&ZuiEditProc);
-    //ZuiControlRegisterAdd(L"singleedit", (ZCtlProc)&ZuiSingleEditProc);
-    ZuiControlRegisterAdd(L"option", (ZCtlProc)&ZuiOptionProc);
-    ZuiControlRegisterAdd(L"checkbox", (ZCtlProc)&ZuiCheckBoxProc);
-    ZuiControlRegisterAdd(L"list", (ZCtlProc)&ZuiListProc);
-    ZuiControlRegisterAdd(L"treeview", (ZCtlProc)&ZuiTreeViewProc);
+    ZuiControlRegisterAdd(Type_Layout, (ZCtlProc)&ZuiLayoutProc);
+    ZuiControlRegisterAdd(Type_VerticalLayout, (ZCtlProc)&ZuiVerticalLayoutProc);
+    ZuiControlRegisterAdd(Type_HorizontalLayout, (ZCtlProc)&ZuiHorizontalLayoutProc);
+    ZuiControlRegisterAdd(Type_TabLayout, (ZCtlProc)&ZuiTabLayoutProc);
+    ZuiControlRegisterAdd(Type_TileLayout, (ZCtlProc)&ZuiTileLayoutProc);
+    ZuiControlRegisterAdd(Type_Window, (ZCtlProc)&ZuiWindowProc);
+    ZuiControlRegisterAdd(Type_ScrollBar, (ZCtlProc)&ZuiScrollBarProc);
+    ZuiControlRegisterAdd(Type_SplitterBar, (ZCtlProc)&ZuiSplitterBarProc);
+    ZuiControlRegisterAdd(Type_Label, (ZCtlProc)&ZuiLabelProc);
+    ZuiControlRegisterAdd(Type_ProgressBar, (ZCtlProc)&ZuiProgressBarProc);
+    ZuiControlRegisterAdd(Type_Button, (ZCtlProc)&ZuiButtonProc);
+    ZuiControlRegisterAdd(Type_Option, (ZCtlProc)&ZuiOptionProc);
+    ZuiControlRegisterAdd(Type_CheckBox, (ZCtlProc)&ZuiCheckBoxProc);
+    ZuiControlRegisterAdd(Type_List, (ZCtlProc)&ZuiListProc);
+    ZuiControlRegisterAdd(Type_TreeView, (ZCtlProc)&ZuiTreeViewProc);
     
     return TRUE;
 }

@@ -18,7 +18,7 @@ ZuiBool ZuiOsInitialize() {
 	return screen != NULL;
 }
 
-ZuiOsWindow ZuiOsCreateWindow(ZuiInt Left, ZuiInt Top, ZuiInt Width, ZuiInt Height, ZuiText Title, ZuiBool ShowInTaskbar, ZuiBool PosMiddle, ZuiWindow Window) {
+ZuiOsWindow ZuiOsCreateWindow(int Left, int Top, int Width, int Height, ZuiText Title, ZuiBool ShowInTaskbar, ZuiBool PosMiddle, ZuiWindow Window) {
 
 	return NULL;
 }
@@ -40,7 +40,7 @@ ZuiVoid ZuiOsSetWindowTitle(ZuiOsWindow OsWindow, ZuiText Title) {
 			Title.c_str());
 	}
 }
-ZuiInt ZuiOsGetWindowTitle(ZuiOsWindow OsWindow, ZuiText out, ZuiInt outlen) {
+int ZuiOsGetWindowTitle(ZuiOsWindow OsWindow, ZuiText out, int outlen) {
 	if (OsWindow) {
 		
 

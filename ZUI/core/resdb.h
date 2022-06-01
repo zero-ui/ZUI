@@ -28,7 +28,7 @@ typedef struct _ZResDB
 #endif // PLATFORM_OS_WIN
     void* uf; //压缩包句柄
     ZuiText pass; //压缩包密码
-    ZuiInt type; //资源包类型
+    int type; //资源包类型
 } *ZuiResDB, ZResDB;
 RB_HEAD(_ZResDB_Tree, _ZResDB);
 RB_PROTOTYPE(_ZResDB_Tree, _ZResDB,,);
@@ -39,10 +39,10 @@ typedef struct _ZRes
     uint32_t hash;
 
     ZuiAny p; //资源指针
-    ZuiInt plen; //资源长度
+    int plen; //资源长度
 
-    ZuiInt ref; //引用计数器
-    ZuiInt type; //资源类型
+    int ref; //引用计数器
+    int type; //资源类型
 } *ZuiRes, ZRes;
 RB_HEAD(_ZRes_Tree, _ZRes);
 RB_PROTOTYPE(_ZRes_Tree, _ZRes,,);

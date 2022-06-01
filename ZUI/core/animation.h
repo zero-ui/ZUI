@@ -7,7 +7,7 @@ typedef ZuiVoid(ZCALL *ZAnimeProcOnSize)(ZuiControl p, ZuiAny w, ZuiAny h);
 typedef ZuiVoid(ZCALL *ZAnimeProcOnEvent)(ZuiControl p, TEventUI *event);
 typedef struct _ZAnimation
 {
-    ZuiInt              steup;
+    int              steup;
     ZuiGraphics         m_hDcOffscreen;		///内存缓冲区绘图DC
     ZAnimeProcOnPaint   OnPaint;    //动画的绘制hook 
     ZAnimeProcOnEvent   OnEvent;    //动画的事件hook

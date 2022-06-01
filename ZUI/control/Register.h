@@ -6,7 +6,7 @@ typedef struct _ZClass
 {
     RB_ENTRY(_ZClass) entry;
     ZCtlProc cb;
-    ZuiUInt key;
+    unsigned int key;
 }*ZuiClass, ZClass;
 RB_HEAD(_ZClass_Tree, _ZClass);
 RB_PROTOTYPE(_ZClass_Tree, _ZClass,,);

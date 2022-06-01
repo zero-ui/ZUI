@@ -9,7 +9,6 @@ ZuiBool ZuiInitZuiFunc() {
      
     p->ZuiMsgLoop = &ZuiMsgLoop;
     p->ZuiMsgLoop_exit = &ZuiMsgLoop_exit;
-    p->ZuiPostTask = &ZuiPostTask;
     p->NewZuiControl = &NewZuiControl;
     p->FreeZuiControl = &FreeZuiControl;
     p->ZuiControlCall = &ZuiControlCall;

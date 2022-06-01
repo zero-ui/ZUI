@@ -11,15 +11,15 @@
 /**图像*/
 typedef struct _ZImage {
     struct ZuiAggImage *image;	///图形句柄
-    ZuiInt Width;
-    ZuiInt Height;
+    int Width;
+    int Height;
     ZRect src;	//源矩形
 }*ZuiImage, ZImage;
 
 /**图形*/
 typedef struct _ZGraphics {
-    ZuiInt Width;
-    ZuiInt Height;
+    int Width;
+    int Height;
     struct ZuiAggGraphics *graphics;	///图形句柄
 #ifdef PLATFORM_OS_WIN
     HDC hdc;		///内存场景

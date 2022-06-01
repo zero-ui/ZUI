@@ -17,27 +17,7 @@
 #endif
 
 //图形接口定义
-#define PLATFORM_GRAPH_AGG  1
-#define PLATFORM_GRAPH_SKIA 0
-
-#define HAVE_JS 0
-#define HAVE_UV 0
-#define HAVE_DUV 0
-
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-#undef HAVE_UV
-#define HAVE_UV 1
-#endif
-
-#if (defined HAVE_DUV) && (HAVE_DUV == 1)
-#undef HAVE_JS
-#define HAVE_JS 1
-#undef HAVE_UV
-#define HAVE_UV 1
-#endif
-
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-#define JS_GCTIMER  10      //js内存回收间隔 s
-#endif
+#define PLATFORM_GRAPH_AGG  0
+#define PLATFORM_GRAPH_GDIX 1
 
 #endif

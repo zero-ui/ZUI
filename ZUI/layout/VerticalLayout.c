@@ -3,7 +3,7 @@
 #include <core/control.h>
 #include <stdlib.h>
 
-void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayout p, ZuiAny Param1, ZuiAny Param2) {
+void* ZCALL ZuiVerticalLayoutProc(int ProcId, ZuiControl cp, ZuiVerticalLayout p, ZuiAny Param1, ZuiAny Param2) {
     switch (ProcId)
     {
     case Proc_SetPos: {
@@ -12,7 +12,6 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
         ZuiLayout op = (ZuiLayout)p->old_udata;
 
         // Adjust for inset
-        //GetManager()->GetDPIObj()->Scale(&m_rcInset);
 		rc.left += op->m_rcInset.left;
 		rc.top += op->m_rcInset.top;
 		rc.right -= op->m_rcInset.right;
@@ -22,8 +21,8 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
 		rc.right -= cp->m_dwBorderWidth;
 		rc.bottom -= cp->m_dwBorderWidth;
 
-        if (op->m_pVerticalScrollBar && op->m_pVerticalScrollBar->m_bVisible) { rc.right -= (ZuiInt)ZuiControlCall(Proc_GetFixedWidth, op->m_pVerticalScrollBar, NULL, NULL); }
-        if (op->m_pHorizontalScrollBar && op->m_pHorizontalScrollBar->m_bVisible) { rc.bottom -= (ZuiInt)ZuiControlCall(Proc_GetFixedHeight, op->m_pHorizontalScrollBar, NULL, NULL); }
+        if (op->m_pVerticalScrollBar && op->m_pVerticalScrollBar->m_bVisible) { rc.right -= (int)ZuiControlCall(Proc_GetFixedWidth, op->m_pVerticalScrollBar, NULL, NULL); }
+        if (op->m_pHorizontalScrollBar && op->m_pHorizontalScrollBar->m_bVisible) { rc.bottom -= (int)ZuiControlCall(Proc_GetFixedHeight, op->m_pHorizontalScrollBar, NULL, NULL); }
 
         if (darray_len(op->m_items) == 0) {
             ZuiControlCall(Proc_Layout_ProcessScrollBar, cp, &rc, 0);
@@ -33,9 +32,9 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
         // Determine the minimum size
         ZSize szAvailable = { rc.right - rc.left, rc.bottom - rc.top };
         if (op->m_pHorizontalScrollBar && op->m_pHorizontalScrollBar->m_bVisible)
-            szAvailable.cx += (ZuiInt)ZuiControlCall(Proc_ScrollBar_GetScrollRange, op->m_pHorizontalScrollBar, NULL, NULL);
+            szAvailable.cx += (int)ZuiControlCall(Proc_ScrollBar_GetScrollRange, op->m_pHorizontalScrollBar, NULL, NULL);
         if (op->m_pVerticalScrollBar && op->m_pVerticalScrollBar->m_bVisible)
-            szAvailable.cy += (ZuiInt)ZuiControlCall(Proc_ScrollBar_GetScrollRange, op->m_pVerticalScrollBar, NULL, NULL);
+            szAvailable.cy += (int)ZuiControlCall(Proc_ScrollBar_GetScrollRange, op->m_pVerticalScrollBar, NULL, NULL);
 
         int cxNeeded = 0;
         int nAdjustables = 0;
@@ -51,10 +50,10 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
             szControlAvailable = szAvailable;
             ZRect rcPadding = *(ZRect *)(ZuiControlCall(Proc_GetPadding, pControl, 0, 0));
             szControlAvailable.cx -= rcPadding.left + rcPadding.right;
-            iControlMaxWidth = (ZuiInt)ZuiControlCall(Proc_GetFixedWidth, pControl, 0, 0);
-            iControlMaxHeight = (ZuiInt)ZuiControlCall(Proc_GetFixedHeight, pControl, 0, 0);
-            if (iControlMaxWidth <= 0) iControlMaxWidth = (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
-            if (iControlMaxHeight <= 0) iControlMaxHeight = (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
+            iControlMaxWidth = (int)ZuiControlCall(Proc_GetFixedWidth, pControl, 0, 0);
+            iControlMaxHeight = (int)ZuiControlCall(Proc_GetFixedHeight, pControl, 0, 0);
+            if (iControlMaxWidth <= 0) iControlMaxWidth = (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
+            if (iControlMaxHeight <= 0) iControlMaxHeight = (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
             if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
             if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
             ZSize sz = *(ZSize *)ZuiControlCall(Proc_EstimateSize, pControl, (void *)&szControlAvailable, 0);
@@ -62,14 +61,14 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
                 nAdjustables++;
             }
             else {
-                if (sz.cy < (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) sz.cy = (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
-                if (sz.cy > (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) sz.cy = (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
+                if (sz.cy < (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) sz.cy = (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
+                if (sz.cy > (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) sz.cy = (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
             }
             cyFixed += sz.cy + ((ZRect *)(ZuiControlCall(Proc_GetPadding, pControl, 0, 0)))->top + ((ZRect *)(ZuiControlCall(Proc_GetPadding, pControl, 0, 0)))->bottom;
 
             sz.cx = MAX(sz.cx, 0);
-            if (sz.cx < (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) sz.cx = (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0);
-            if (sz.cx > (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) sz.cx = (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
+            if (sz.cx < (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) sz.cx = (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0);
+            if (sz.cx > (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) sz.cx = (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
             cxNeeded = MAX(cxNeeded, sz.cx + rcPadding.left + rcPadding.right);
             nEstimateNum++;
         }
@@ -83,7 +82,7 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
         ZSize szRemaining = szAvailable;
         int iPosY = rc.top;
         if (op->m_pVerticalScrollBar && op->m_pVerticalScrollBar->m_bVisible) {
-            iPosY -= (ZuiInt)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pVerticalScrollBar, NULL, NULL);
+            iPosY -= (int)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pVerticalScrollBar, NULL, NULL);
         }
 
         int iEstimate = 0;
@@ -103,10 +102,10 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
 
             szControlAvailable = szRemaining;
             szControlAvailable.cx -= rcPadding.left + rcPadding.right;
-            iControlMaxWidth = (ZuiInt)ZuiControlCall(Proc_GetFixedWidth, pControl, 0, 0);
-            iControlMaxHeight = (ZuiInt)ZuiControlCall(Proc_GetFixedHeight, pControl, 0, 0);
-            if (iControlMaxWidth <= 0) iControlMaxWidth = (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
-            if (iControlMaxHeight <= 0) iControlMaxHeight = (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
+            iControlMaxWidth = (int)ZuiControlCall(Proc_GetFixedWidth, pControl, 0, 0);
+            iControlMaxHeight = (int)ZuiControlCall(Proc_GetFixedHeight, pControl, 0, 0);
+            if (iControlMaxWidth <= 0) iControlMaxWidth = (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
+            if (iControlMaxHeight <= 0) iControlMaxHeight = (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
             if (szControlAvailable.cx > iControlMaxWidth) szControlAvailable.cx = iControlMaxWidth;
             if (szControlAvailable.cy > iControlMaxHeight) szControlAvailable.cy = iControlMaxHeight;
             cyFixedRemaining = cyFixedRemaining - (rcPadding.top + rcPadding.bottom);
@@ -119,27 +118,27 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
                 if (iAdjustable == nAdjustables) {
                     sz.cy = MAX(0, szRemaining.cy - rcPadding.bottom - cyFixedRemaining);
                 }
-                if (sz.cy < (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) sz.cy = (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
-                if (sz.cy > (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) sz.cy = (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
+                if (sz.cy < (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) sz.cy = (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
+                if (sz.cy > (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) sz.cy = (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
             }
             else {
-                if (sz.cy < (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) sz.cy = (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
-                if (sz.cy > (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) sz.cy = (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
+                if (sz.cy < (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) sz.cy = (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
+                if (sz.cy > (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) sz.cy = (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
                 cyFixedRemaining -= sz.cy;
             }
 
-            sz.cx = (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
+            sz.cx = (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
             if (sz.cx == 0) sz.cx = szAvailable.cx - rcPadding.left - rcPadding.right;
             if (sz.cx < 0) sz.cx = 0;
             if (sz.cx > szControlAvailable.cx) sz.cx = szControlAvailable.cx;
-            if (sz.cx < (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) sz.cx = (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0);
+            if (sz.cx < (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) sz.cx = (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0);
 
-            ZuiUInt iChildAlign = (ZuiUInt)ZuiControlCall(Proc_Layout_GetChildAlign, cp, NULL, NULL);
+            unsigned int iChildAlign = (unsigned int)ZuiControlCall(Proc_Layout_GetChildAlign, cp, NULL, NULL);
             if (iChildAlign == ZDT_CENTER) {
                 int iPosX = (rc.right + rc.left) / 2;
                 if (op->m_pHorizontalScrollBar && op->m_pHorizontalScrollBar->m_bVisible) {
                     iPosX += (cxNeeded - rc.right + rc.left) / 2;
-                    iPosX -= (ZuiInt)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pHorizontalScrollBar, 0, NULL);
+                    iPosX -= (int)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pHorizontalScrollBar, 0, NULL);
                 }
                 RECT rcCtrl = { iPosX - sz.cx / 2, iPosY + rcPadding.top, iPosX + sz.cx - sz.cx / 2, iPosY + sz.cy + rcPadding.top };
                 ZuiControlCall(Proc_SetPos, pControl, &rcCtrl, FALSE);
@@ -148,7 +147,7 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
                 int iPosX = rc.right;
                 if (op->m_pHorizontalScrollBar && op->m_pHorizontalScrollBar->m_bVisible) {
                     iPosX += cxNeeded - rc.right + rc.left;
-                    iPosX -= (ZuiInt)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pHorizontalScrollBar, 0, NULL);
+                    iPosX -= (int)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pHorizontalScrollBar, 0, NULL);
                 }
                 RECT rcCtrl = { iPosX - rcPadding.right - sz.cx, iPosY + rcPadding.top, iPosX - rcPadding.right, iPosY + sz.cy + rcPadding.top };
                 ZuiControlCall(Proc_SetPos, pControl, &rcCtrl, FALSE);
@@ -156,7 +155,7 @@ void* ZCALL ZuiVerticalLayoutProc(ZuiInt ProcId, ZuiControl cp, ZuiVerticalLayou
             else {
                 int iPosX = rc.left;
                 if (op->m_pHorizontalScrollBar && op->m_pHorizontalScrollBar->m_bVisible) {
-                    iPosX -= (ZuiInt)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pHorizontalScrollBar, 0, NULL);
+                    iPosX -= (int)ZuiControlCall(Proc_ScrollBar_GetScrollPos, op->m_pHorizontalScrollBar, 0, NULL);
                 }
                 RECT rcCtrl = { iPosX + rcPadding.left, iPosY + rcPadding.top, iPosX + rcPadding.left + sz.cx, iPosY + sz.cy + rcPadding.top };
                 ZuiControlCall(Proc_SetPos, pControl, &rcCtrl, FALSE);

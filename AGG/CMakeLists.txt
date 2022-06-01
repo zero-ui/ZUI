@@ -1,5 +1,0 @@
-project(agg)
-include_directories(./include)
-aux_source_directory(./src src)
-add_library(agg STATIC ${src} agg2d.cpp agg_font_freetype.cpp)
-set_target_properties(agg PROPERTIES output_name "agg")

@@ -56,8 +56,8 @@ void* ZCALL ZuiTileLayoutProc(int ProcId, ZuiControl cp, ZuiTileLayout p, void* 
                     ZRect *rcPadding = (ZRect *)(ZuiControlCall(Proc_GetPadding, pLineControl, 0, 0));
                     ZSize szAvailable = { rcTile.right - rcTile.left - rcPadding->left - rcPadding->right, 9999 };
 
-                    if (szAvailable.cx < (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) { szAvailable.cx = (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0); }
-                    if (szAvailable.cx > (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) { szAvailable.cx = (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0); }
+                    if (szAvailable.cx < (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) { szAvailable.cx = (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0); }
+                    if (szAvailable.cx > (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) { szAvailable.cx = (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0); }
 
 
                     ZSize *pszTile = (ZSize *)ZuiControlCall(Proc_EstimateSize, pLineControl, (void *)&szAvailable, 0);
@@ -66,10 +66,10 @@ void* ZCALL ZuiTileLayoutProc(int ProcId, ZuiControl cp, ZuiTileLayout p, void* 
                     szTile.cy = pszTile->cy;
                     if (szTile.cx == 0) szTile.cx = p->m_szItem.cx;
                     if (szTile.cy == 0) szTile.cy = p->m_szItem.cy;
-                    if (szTile.cx < (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) szTile.cx = (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0);
-                    if (szTile.cx > (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) szTile.cx = (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
-                    if (szTile.cy < (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) szTile.cy = (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
-                    if (szTile.cy > (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) szTile.cy = (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
+                    if (szTile.cx < (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) szTile.cx = (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0);
+                    if (szTile.cx > (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) szTile.cx = (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0);
+                    if (szTile.cy < (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) szTile.cy = (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0);
+                    if (szTile.cy > (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) szTile.cy = (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0);
 
                     cyHeight = MAX(cyHeight, szTile.cy + rcPadding->top + rcPadding->bottom);
                     if ((++iIndex % p->m_nColumns) == 0) break;
@@ -95,10 +95,10 @@ void* ZCALL ZuiTileLayoutProc(int ProcId, ZuiControl cp, ZuiTileLayout p, void* 
             if (szTile.cy == 0) szTile.cy = p->m_szItem.cy;
             if (szTile.cx == 0) szTile.cx = szAvailable.cx;
             if (szTile.cy == 0) szTile.cy = szAvailable.cy;
-            if (szTile.cx < (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) { szTile.cx = (ZuiInt)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0); }
-            if (szTile.cx > (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) { szTile.cx = (ZuiInt)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0); }
-            if (szTile.cy < (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) { szTile.cy = (ZuiInt)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0); }
-            if (szTile.cy > (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) { szTile.cy = (ZuiInt)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0); }
+            if (szTile.cx < (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0)) { szTile.cx = (int)ZuiControlCall(Proc_GetMinWidth, pControl, 0, 0); }
+            if (szTile.cx > (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0)) { szTile.cx = (int)ZuiControlCall(Proc_GetMaxWidth, pControl, 0, 0); }
+            if (szTile.cy < (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0)) { szTile.cy = (int)ZuiControlCall(Proc_GetMinHeight, pControl, 0, 0); }
+            if (szTile.cy > (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0)) { szTile.cy = (int)ZuiControlCall(Proc_GetMaxHeight, pControl, 0, 0); }
             ZRect rcPos = { (rcTile.left + rcTile.right - szTile.cx) / 2, (rcTile.top + rcTile.bottom - szTile.cy) / 2,
                 (rcTile.left + rcTile.right - szTile.cx) / 2 + szTile.cx, (rcTile.top + rcTile.bottom - szTile.cy) / 2 + szTile.cy };
             ZuiControlCall(Proc_SetPos, pControl, &rcPos, FALSE);
@@ -111,18 +111,17 @@ void* ZCALL ZuiTileLayoutProc(int ProcId, ZuiControl cp, ZuiTileLayout p, void* 
                 ptTile.x += cxWidth;
             }
             cyNeeded = rcTile.bottom - rc.top;
-            //if (m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible()) cyNeeded += m_pVerticalScrollBar->GetScrollPos();
         }
         return 0;
     }
     case Proc_SetAttribute: {
-        if (wcscmp(Param1, L"itemsize") == 0) {
+        if (_tcsicmp(Param1, L"itemsize") == 0) {
             ZuiText pstr = NULL;
-            ZuiInt x = _tcstol(Param2, &pstr, 10);  ASSERT(pstr);
-            ZuiInt y = _tcstol(pstr + 1, &pstr, 10);   ASSERT(pstr);
+            int x = _tcstol(Param2, &pstr, 10);  ASSERT(pstr);
+            int y = _tcstol(pstr + 1, &pstr, 10);   ASSERT(pstr);
             ZuiControlCall(Proc_TileLayout_SetItemSize, cp, (ZuiAny)x, (ZuiAny)y);
         }
-        else if (wcscmp(Param1, L"columns") == 0) ZuiControlCall(Proc_TileLayout_SetColumns, cp, (ZuiAny)_ttoi(Param2), NULL);
+        else if (_tcsicmp(Param1, L"columns") == 0) ZuiControlCall(Proc_TileLayout_SetColumns, cp, (ZuiAny)_ttoi(Param2), NULL);
         break;
     }
     case Proc_TileLayout_SetColumns: {
@@ -132,9 +131,9 @@ void* ZCALL ZuiTileLayoutProc(int ProcId, ZuiControl cp, ZuiTileLayout p, void* 
         break;
     }
     case Proc_TileLayout_SetItemSize: {
-        if (p->m_szItem.cx != (ZuiInt)Param1 || p->m_szItem.cy != (ZuiInt)Param2) {
-            p->m_szItem.cx = (ZuiInt)Param1;
-            p->m_szItem.cy = (ZuiInt)Param2;
+        if (p->m_szItem.cx != (int)Param1 || p->m_szItem.cy != (int)Param2) {
+            p->m_szItem.cx = (int)Param1;
+            p->m_szItem.cy = (int)Param2;
             ZuiControlNeedUpdate(cp);
         }
         break;

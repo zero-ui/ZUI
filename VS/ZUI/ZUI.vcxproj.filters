@@ -108,15 +108,13 @@
     <ClCompile Include="..\..\ZUI\core\builder.c">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ZUI\vc6.cpp" />
     <ClCompile Include="..\..\ZUI\core\unzip.c">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ZUI\ZUI.c" />
     <ClCompile Include="..\..\ZUI\core\export.c">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ZUI\platform\graph\skia.cpp">
+    <ClCompile Include="..\..\ZUI\platform\graph\gdi+.cpp">
       <Filter>platform\graph</Filter>
     </ClCompile>
   </ItemGroup>
@@ -231,7 +229,7 @@
     <ClInclude Include="..\..\ZUI\core\export.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ZUI\platform\graph\skia.h">
+    <ClInclude Include="..\..\ZUI\platform\graph\gdi+.h">
       <Filter>platform\graph</Filter>
     </ClInclude>
   </ItemGroup>

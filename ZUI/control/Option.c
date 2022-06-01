@@ -2,10 +2,7 @@
 #include <core/control.h>
 #include <core/resdb.h>
 #include "Button.h"
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-#include <duktape.h>
-#endif
-ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, ZuiAny Param1, ZuiAny Param2) {
+ZEXPORT ZuiAny ZCALL ZuiOptionProc(int ProcId, ZuiControl cp, ZuiOption p, ZuiAny Param1, ZuiAny Param2) {
     switch (ProcId)
     {
     case Proc_OnEvent: {
@@ -21,7 +18,16 @@ ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, Zu
         }
         break;
     }
-    case Proc_OnPaint: {
+    case Proc_OnPaintBorder: {
+        ZuiGraphics gp = (ZuiGraphics)Param1;
+        ZRect* rc = (ZRect*)&cp->m_rcItem;
+        if (p->m_bSelected && !p->m_ResSelected && ((ZuiButton)p->old_udata)->type > 0) {
+            ZuiDrawRoundRect(gp, ((ZuiButton)p->old_udata)->m_BorderColor, rc, cp->m_rRound.cx, cp->m_rRound.cy, cp->m_dwBorderWidth);
+            return 0;
+        }
+        break;
+    }
+    case Proc_OnPaintStatusImage: {
         ZuiGraphics gp = (ZuiGraphics)Param1;
         ZRect *rc = &cp->m_rcItem;
         if (p->m_bSelected) {
@@ -29,37 +35,37 @@ ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, Zu
             if (((ZuiButton)p->old_udata)->type == 0) {
                 if (p->m_ResSelected) {
                     img = p->m_ResSelected->p;
-                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0, 0, img->Width, img->Height, 255);
+                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right, rc->bottom, 0, 0, img->Width, img->Height, 255);
                 }
                 else {
-                    ZuiDrawFillRect(gp, p->m_ColorSelected, rc->left, rc->top, rc->right, rc->bottom);
+                    ZuiDrawFillRect(gp, p->m_ColorSelected, rc);
                 }
             }
             else if (((ZuiButton)p->old_udata)->type == 1) {
                 if (p->m_ResSelectedHot) {
                     img = p->m_ResSelectedHot->p;
-                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0, 0, img->Width, img->Height, 255);
+                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right, rc->bottom, 0, 0, img->Width, img->Height, 255);
                 }
                 else {
-                    ZuiDrawFillRect(gp, p->m_ColorSelectedHot, rc->left, rc->top, rc->right, rc->bottom);
+                    ZuiDrawFillRect(gp, p->m_ColorSelectedHot, rc);
                 }
             }
             else if (((ZuiButton)p->old_udata)->type == 2) {
                 if (p->m_ResSelectedPushed) {
                     img = p->m_ResSelectedPushed->p;
-                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0, 0, img->Width, img->Height, 255);
+                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right, rc->bottom, 0, 0, img->Width, img->Height, 255);
                 }
                 else {
-                    ZuiDrawFillRect(gp, p->m_ColorSelectedPushed, rc->left, rc->top, rc->right, rc->bottom);
+                    ZuiDrawFillRect(gp, p->m_ColorSelectedPushed, rc);
                 }
             }
             else {
                 if (p->m_ResSelectedPushed) {
                     img = p->m_ResSelectedDisabled->p;
-                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0, 0, img->Width, img->Height, 255);
+                    ZuiDrawImageEx(gp, img, rc->left, rc->top, rc->right, rc->bottom, 0, 0, img->Width, img->Height, 255);
                 }
                 else {
-                    ZuiDrawFillRect(gp, p->m_ColorSelectedDisabled, rc->left, rc->top, rc->right, rc->bottom);
+                    ZuiDrawFillRect(gp, p->m_ColorSelectedDisabled, rc);
                 }
             }
             ZuiControlCall(Proc_OnPaintText, cp, Param1, Param2);//绘制文本
@@ -106,18 +112,7 @@ ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, Zu
                 }
             }
         }
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-        if (p->m_rOnselected) {
-            duv_push_ref(cp->m_pOs->m_ctx, p->m_rOnselected);
-            ZuiBuilderJs_pushControl(cp->m_pOs->m_ctx, p);
-            duk_push_boolean(cp->m_pOs->m_ctx, Param1);
-            if (duk_pcall_method(cp->m_pOs->m_ctx, 2)) {
-                LOG_DUK(cp->m_pOs->m_ctx);
-            }
-            duk_pop(cp->m_pOs->m_ctx);
-        }
-#endif
-        ZuiControlNotify(L"selectchanged", cp, Param1, NULL);
+        ZuiControlNotify(_T("selectchanged"), cp, Param1, NULL);
         ZuiControlInvalidate(cp, TRUE);
         break;
     }
@@ -190,9 +185,9 @@ ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, Zu
     }
     case Proc_SetAttribute: {
         if (_tcscmp(Param1, _T("group")) == 0)
-            ZuiControlCall(Proc_Option_SetGroup, cp, (ZuiAny)(wcscmp(Param2, L"true") == 0 ? TRUE : FALSE), NULL);
+            ZuiControlCall(Proc_Option_SetGroup, cp, (ZuiAny)(_tcsicmp(Param2, _T("true")) == 0 ? TRUE : FALSE), NULL);
         else if (_tcscmp(Param1, _T("selected")) == 0)
-            ZuiControlCall(Proc_Option_SetSelected, cp, (ZuiAny)(wcscmp(Param2, L"true") == 0 ? TRUE : FALSE), NULL);
+            ZuiControlCall(Proc_Option_SetSelected, cp, (ZuiAny)(_tcsicmp(Param2, _T("true")) == 0 ? TRUE : FALSE), NULL);
         else if (_tcscmp(Param1, _T("selectedimage")) == 0)
             ZuiControlCall(Proc_Option_SetResNormal, cp, (ZuiAny)ZuiResDBGetRes(Param2, ZREST_IMG), NULL);
         else if (_tcscmp(Param1, _T("selectedhotimage")) == 0)
@@ -203,70 +198,18 @@ ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, Zu
             ZuiControlCall(Proc_Option_SetResFocused, cp, (ZuiAny)ZuiResDBGetRes(Param2, ZREST_IMG), NULL);
         else if (_tcscmp(Param1, _T("selecteddisabledimage")) == 0)
             ZuiControlCall(Proc_Option_SetResDisabled, cp, (ZuiAny)ZuiResDBGetRes(Param2, ZREST_IMG), NULL);
-        else if (wcscmp(Param1, L"selectedcolor") == 0)
+        else if (_tcsicmp(Param1, _T("selectedcolor")) == 0)
             ZuiControlCall(Proc_Option_SetColorNormal, cp, (ZuiAny)ZuiStr2Color(Param2), NULL);
-        else if (wcscmp(Param1, L"hotselectedcolor") == 0)
+        else if (_tcsicmp(Param1, _T("hotselectedcolor")) == 0)
             ZuiControlCall(Proc_Option_SetColorHot, cp, (ZuiAny)ZuiStr2Color(Param2), NULL);
-        else if (wcscmp(Param1, L"pushedselectedcolor") == 0)
+        else if (_tcsicmp(Param1, _T("pushedselectedcolor")) == 0)
             ZuiControlCall(Proc_Option_SetColorPushed, cp, (ZuiAny)ZuiStr2Color(Param2), NULL);
-        else if (wcscmp(Param1, L"focusedselectedcolor") == 0)
+        else if (_tcsicmp(Param1, _T("focusedselectedcolor")) == 0)
             ZuiControlCall(Proc_Option_SetColorFocused, cp, (ZuiAny)ZuiStr2Color(Param2), NULL);
-        else if (wcscmp(Param1, L"disabledselectedcolor") == 0)
+        else if (_tcsicmp(Param1, _T("disabledselectedcolor")) == 0)
             ZuiControlCall(Proc_Option_SetColorDisabled, cp, (ZuiAny)ZuiStr2Color(Param2), NULL);
         break;
     }
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-    case Proc_JsGet: {
-        duk_context *ctx = (duk_context *)Param1;
-        switch ((ZuiInt)Param2)
-        {
-        case  Js_Id_Option_selected: {
-            duk_push_boolean(ctx, p->m_bSelected);
-            return 1;
-        }
-        case Js_Id_Option_group: {
-            duk_push_boolean(ctx, p->m_bGroup);
-            return 1;
-        }
-        default:
-            break;
-        }
-        break;
-    }
-    case Proc_JsSet: {
-        duk_context *ctx = (duk_context *)Param1;
-        switch ((ZuiInt)Param2)
-        {
-        case Js_Id_Option_selected: {
-            ZuiControlCall(Proc_Option_SetSelected, cp, (ZuiAny)duk_to_boolean(ctx, 0), NULL, NULL);
-            return 0;
-        }
-        case Js_Id_Option_group: {
-            ZuiControlCall(Proc_Option_SetGroup, cp, (ZuiAny)duk_to_boolean(ctx, 0), NULL, NULL);
-            return 0;
-        }
-        case Js_Id_Option_onselected: {
-            if (duk_is_function(ctx, 0)) {
-                if (p->m_rOnselected)
-                    duv_unref(ctx, p->m_rOnselected);
-                duk_dup(ctx, 0);
-                p->m_rOnselected = duv_ref(ctx);
-            }
-            return 0;
-        }
-        default:
-            break;
-        }
-        break;
-    }
-    case Proc_JsInit: {
-        ZuiBuilderControlInit(Param1, "selected", Js_Id_Option_selected, TRUE);
-        ZuiBuilderControlInit(Param1, "group", Js_Id_Option_group, TRUE);
-
-        ZuiBuilderControlInit(Param1, "onselected", Js_Id_Option_onselected, TRUE);
-        break;
-    }
-#endif
     case Proc_OnCreate: {
         p = (ZuiOption)malloc(sizeof(ZOption));
         memset(p, 0, sizeof(ZOption));
@@ -274,10 +217,10 @@ ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, Zu
         //创建继承的控件 保存数据指针
         p->old_udata = ZuiButtonProc(Proc_OnCreate, cp, 0, 0, 0);
         p->old_call = (ZCtlProc)&ZuiButtonProc;
-        p->m_ColorSelected = ARGB(200, 12, 111, 255);		//选中的普通状态
-        p->m_ColorSelectedHot = ARGB(200, 0, 255, 255);		//选中的点燃状态
-        p->m_ColorSelectedPushed = ARGB(200, 255, 255, 255);	//选中的按下状态
-        p->m_ColorSelectedDisabled = ARGB(173, 173, 173, 255);
+        p->m_ColorSelected = 0xFF0C4499;		//选中的普通状态
+        p->m_ColorSelectedHot = 0xFF0C5599;		//选中的点燃状态
+        p->m_ColorSelectedPushed = 0xFF0C6699;	//选中的按下状态
+        p->m_ColorSelectedDisabled = 0xFF989898;
         return p;
     }
     case Proc_OnDestroy: {
@@ -289,7 +232,7 @@ ZEXPORT ZuiAny ZCALL ZuiOptionProc(ZuiInt ProcId, ZuiControl cp, ZuiOption p, Zu
         return 0;
     }
     case Proc_GetObject:
-        if (Param1 == (ZuiAny)Type_Option)
+        if (_tcsicmp(Param1, (ZuiAny)Type_Option) == 0)
             return (ZuiAny)p;
         break;
     case Proc_GetType:

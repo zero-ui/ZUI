@@ -21,7 +21,7 @@ static int mxml_set_attr(mxml_node_t *node, const wchar_t *name, wchar_t *value)
     for (i = node->value.num_attrs, attr = node->value.attrs;
         i > 0;
         i--, attr++)
-        if (!wcscmp(attr->name, name))
+        if (!_tcsicmp(attr->name, name))
         {
             /*
             * Free the old value as needed...
@@ -76,7 +76,7 @@ wchar_t* mxmlElementGetAttr(mxml_node_t *node, const wchar_t *name)
         i--, attr++)
     {
 
-        if (!wcscmp(attr->name, name))
+        if (!_tcsicmp(attr->name, name))
         {
             return (attr->value);
         }
@@ -274,7 +274,7 @@ mxml_node_t *mxmlClone(mxml_node_t *node, mxml_node_t *parent) {
     new_node->value.num_attrs = node->value.num_attrs;
     if (node->value.num_attrs)
         new_node->value.attrs = (mxml_attr_t *)memset(malloc(node->value.num_attrs * sizeof(mxml_attr_t)), 0, node->value.num_attrs * sizeof(mxml_attr_t));
-    for (ZuiInt i = 0; i < node->value.num_attrs; i++)
+    for (int i = 0; i < node->value.num_attrs; i++)
     {
         new_node->value.attrs[i].name = strdup(node->value.attrs[i].name);
         new_node->value.attrs[i].value = strdup(node->value.attrs[i].value);
@@ -658,7 +658,7 @@ static int mxmlEntityGetValue(const wchar_t *name)
     {
         current = (first + last) / 2;
 
-        if ((diff = wcscmp(name, entities[current].name)) == 0)
+        if ((diff = _tcsicmp(name, entities[current].name)) == 0)
             return (entities[current].val);
         else if (diff < 0)
             last = current;
@@ -671,9 +671,9 @@ static int mxmlEntityGetValue(const wchar_t *name)
     * a match; check first and last...
     */
 
-    if (!wcscmp(name, entities[first].name))
+    if (!_tcsicmp(name, entities[first].name))
         return (entities[first].val);
-    else if (!wcscmp(name, entities[last].name))
+    else if (!_tcsicmp(name, entities[last].name))
         return (entities[last].val);
     else
         return (-1);
@@ -968,7 +968,7 @@ error:
     return (WEOF);
 }
 //加载XML字符串 返回XML树
-mxml_node_t *mxmlLoadString(mxml_node_t *top, ZuiAny s, ZuiInt len)
+mxml_node_t *mxmlLoadString(mxml_node_t *top, ZuiAny s, int len)
 {
     mxml_node_t *node, /* Current node */
         *first, /* First node added */
@@ -1052,7 +1052,7 @@ mxml_node_t *mxmlLoadString(mxml_node_t *top, ZuiAny s, ZuiInt len)
 
             *bufptr = L'\0';
 
-            if (!wcscmp(buffer, L"!--"))
+            if (!_tcsicmp(buffer, L"!--"))
             {
                 while ((ch = mxml_string_getc(p)) != WEOF)
                 {
@@ -1077,7 +1077,7 @@ mxml_node_t *mxmlLoadString(mxml_node_t *top, ZuiAny s, ZuiInt len)
                 //不解析跳过注释
                 node = NULL;
             }
-            else if (!wcscmp(buffer, L"![CDATA["))
+            else if (!_tcsicmp(buffer, L"![CDATA["))
             {
                 while ((ch = mxml_string_getc(p)) != WEOF)
                 {
@@ -1193,7 +1193,7 @@ mxml_node_t *mxmlLoadString(mxml_node_t *top, ZuiAny s, ZuiInt len)
             }
             else if (buffer[0] == L'/')
             {
-                if (!parent || wcscmp(buffer + 1, parent->value.name))
+                if (!parent || _tcsicmp(buffer + 1, parent->value.name))
                 {
                     goto error;
                 }
@@ -1321,7 +1321,7 @@ mxml_node_t *mxmlFindElement(mxml_node_t *node, mxml_node_t *top, const wchar_t 
         */
 
         if (node->value.name &&
-            (!name || !wcscmp(node->value.name, name)))
+            (!name || !_tcsicmp(node->value.name, name)))
         {
             /*
             * See if we need to check for an attribute...
@@ -1340,7 +1340,7 @@ mxml_node_t *mxmlFindElement(mxml_node_t *node, mxml_node_t *top, const wchar_t 
                 * OK, we have the attribute, does it match?
                 */
 
-                if (!value || !wcscmp(value, temp))
+                if (!value || !_tcsicmp(value, temp))
                     return (node); /* Yes, return it... */
             }
         }

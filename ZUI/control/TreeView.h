@@ -30,14 +30,14 @@ typedef struct _ZTreeNode
 /**树形框结构*/
 typedef struct _ZTreeView
 {
-    ZuiUInt m_uItemMinWidth;
+    unsigned int m_uItemMinWidth;
     ZuiBool m_bVisibleFolderBtn;
     ZuiBool m_bVisibleCheckBtn;
 
     ZCtlProc old_call;
     ZuiAny old_udata;
 }*ZuiTreeView, ZTreeView;
-ZEXPORT ZuiAny ZCALL ZuiTreeViewProc(ZuiInt ProcId, ZuiControl cp, ZuiTreeView p, ZuiAny Param1, ZuiAny Param2);
-ZEXPORT ZuiAny ZCALL ZuiTreeNodeProc(ZuiInt ProcId, ZuiControl cp, ZuiTreeNode p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiTreeViewProc(int ProcId, ZuiControl cp, ZuiTreeView p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiTreeNodeProc(int ProcId, ZuiControl cp, ZuiTreeNode p, ZuiAny Param1, ZuiAny Param2);
 
 #endif	//__TREE_H__

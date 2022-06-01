@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <tchar.h>
 //config
 #include "config.h"
 
@@ -55,13 +56,6 @@
 //--------------------------------------------------------------------基础数据类型
 typedef wchar_t*        ZuiText, _ZuiText, ZText;   //内核默认Unicode存储字符
 typedef float           ZuiReal;
-#ifdef _WIN64
-typedef long long       ZuiInt;
-typedef unsigned long long ZuiUInt;
-#else
-typedef int32_t             ZuiInt;
-typedef uint32_t            ZuiUInt;
-#endif
 typedef int             ZuiBool;
 typedef void            ZuiVoid;
 typedef void*           ZuiAny;
@@ -144,16 +138,10 @@ typedef struct _ZuiInitConfig
     ZuiText default_fontname;   //默认字体名字
 
 } *ZuiInitConfig, ZInitConfig;
-//Task结构
-typedef struct _ZuiTask
-{
-    ZuiAny(ZCALL *run)(struct _ZuiTask*);
-    void *data;
-} *ZuiTask, ZTask;
 
 //--------------------------------------------------------------------回调定义
 typedef ZuiControl(ZCALL* FINDCONTROLPROC)(ZuiControl, ZuiAny);
-typedef ZuiAny(ZCALL *ZCtlProc)(ZuiInt ProcId, ZuiControl p, ZuiAny UserData, ZuiAny Param1, ZuiAny Param2);
+typedef ZuiAny(ZCALL *ZCtlProc)(int ProcId, ZuiControl p, ZuiAny UserData, ZuiAny Param1, ZuiAny Param2);
 typedef ZuiAny(ZCALL *ZNotifyProc)(ZuiText msg, ZuiControl p, ZuiAny UserData, ZuiAny Param1, ZuiAny Param2);
 
 //查找控件参数
@@ -192,47 +180,6 @@ enum ZREST
 #define ZuiCANCEL	2
 #define ZuiYES		3
 #define ZuiNO		4
-
-#if LOG_DEBUG || RUN_DEBUG
-
-
-#define LOG_ERROR(fmt, ...) do{\
-    wchar_t buf[512];   \
-    _snwprintf(buf, 512, fmt, __VA_ARGS__);\
-    ZuiDebugLog(ZLOG_TYPE_ERROR, buf);  \
-}while(0)
-#define LOG_DEGUB(fmt, ...) do{\
-    wchar_t buf[512];   \
-    _snwprintf(buf, 512, fmt, __VA_ARGS__);\
-    wprintf(buf);\
-    ZuiDebugLog(ZLOG_TYPE_DEBUG, buf);  \
-}while(0)
-#define LOG_WARNING(fmt, ...) do{\
-    wchar_t buf[512];   \
-    _snwprintf(buf, 512, fmt, __VA_ARGS__);\
-    ZuiDebugLog(ZLOG_TYPE_WARNING, buf);  \
-}while(0)
-#define LOG_INFO(fmt, ...) do{\
-    wchar_t buf[512];   \
-    _snwprintf(buf, 512, fmt, __VA_ARGS__);\
-    ZuiDebugLog(ZLOG_TYPE_INFO, buf);  \
-}while(0)
-
-
-#define LOG_DUK(ctx) do{\
-    wchar_t buf[1024];   \
-    duk_get_prop_string((ctx), -1, "stack");\
-    _snwprintf(buf, 1024, L"%s\r\n",duk_get_string_w((ctx), -1));\
-    wprintf(buf);\
-    ZuiDebugLog(ZLOG_TYPE_INFO, buf);  \
-}while(0)
-#else
-#define LOG_ERROR(fmt, ...)
-#define LOG_DEGUB(fmt, ...)
-#define LOG_WARNING(fmt, ...)
-#define LOG_INFO(fmt, ...)
-#define LOG_DUK(ctx)
-#endif
 //--------------------------------------------------------------------plugin类
 #if 1
 
@@ -240,7 +187,7 @@ enum ZREST
 //--------------------------------------------------------------------Base类
 #if 1
 //功能宏
-#define Type_Null               0xc6268d0b
+#define Type_Null               _T("Null")
 
 #define ZTYLE_BOX               1   //单线边框
 #define ZTYLE_BKGColor          2   //具有背景色
@@ -319,7 +266,7 @@ enum ZREST
 //-------绘图资源
 #define Proc_SetBkColor           67  //设置背景色
 #define Proc_SetBkImage         68  //设置背景图片
-//#define Proc_SetBorderColor     69  //设置边框颜色
+#define Proc_SetBorderColor     69  //设置边框颜色
 
 #define Proc_SetAnimationType   70  //设置动画类型
 #define	Proc_SetBorderWidth		71
@@ -337,11 +284,11 @@ enum ZREST
 
 //--------------------------------------------------------------------Layout类
 #if 1
-#define Type_Layout                     0xbebc5b1a
-#define Type_VerticalLayout             0xd72bfbd7
-#define Type_HorizontalLayout           0xf20a2d07
-#define Type_TileLayout                 0x15e48812
-#define Type_TabLayout                  0x61b7311c
+#define Type_Layout                     _T("Layout")
+#define Type_VerticalLayout             _T("VerticalLayout")
+#define Type_HorizontalLayout           _T("HorizontalLayout")
+#define Type_TileLayout                 _T("TileLayout")
+#define Type_TabLayout                  _T("TabLayout")
 
 //--------base
 #define Proc_Layout_Add                 101 ///添加控件
@@ -394,7 +341,7 @@ enum ZREST
 
 //--------------------------------------------------------------------Label类
 #if 1
-#define Type_Label                  0xe538ac26
+#define Type_Label                  _T("Label")
 #define Proc_Label_SetFont          171     //设置字体
 #define Proc_Label_SetTextColor     172     //设置文本颜色
 #define Proc_Label_SetTextPadding   173     //字体边距
@@ -403,7 +350,7 @@ enum ZREST
 
 //--------------------------------------------------------------------Button类
 #if 1
-#define Type_Button                 0x5e7331d7
+#define Type_Button                 _T("Button")
 
 #define Proc_Button_SetResNormal    201    //普通颜色
 #define Proc_Button_SetResHot       202    //高亮状态
@@ -422,30 +369,34 @@ enum ZREST
 #if 1
 
 #endif // 1
-//--------------------------------------------------------------------类
+//--------------------------------------------------------------------DrawPanel类
 #if 1
-
+#define Type_DrawPanel            _T("DrawPanel")
 #endif // 1
 //--------------------------------------------------------------------SplitterBar类
 #if 1
-#define Type_SplitterBar            0xd77cbbba
+#define Type_SplitterBar            _T("SplitterBar")
 #endif // 1
 //--------------------------------------------------------------------ProgressBar类
 #if 1
-#define Type_ProgressBar            0x251a8a44
+#define Type_ProgressBar            _T("ProgressBar")
+#define Proc_ProgressBar_SetColor   500
+#define Proc_ProgressBar_SetBackColor   501
+#define Proc_ProgressBar_SetPercet   502
+#define Proc_ProgressBar_SetHeight  503
 #endif
 
 //--------------------------------------------------------------------CheckBox类
 #if 1
-#define Type_CheckBox               0x251a8a44
+#define Type_CheckBox               _T("CheckBox")
 #endif // 1
 //--------------------------------------------------------------------List类
 #if 1
-#define Type_List                           0x86c6c0f9
-#define Type_ListBody                       0x66e9ee9e
-#define Type_ListElement                    0x0362584a
-#define Type_ListHeader                     0x39323603
-#define Type_ListHeaderItem                 0x25996255
+#define Type_List                           _T("List")
+#define Type_ListBody                       _T("ListBody")
+#define Type_ListElement                    _T("listElement")
+#define Type_ListHeader                     _T("listHeader")
+#define Type_ListHeaderItem                 _T("listHeaderItem")
 
 
 #define Proc_List_GetHeader                 400    //取列表头控件
@@ -494,7 +445,7 @@ enum ZREST
 
 //--------------------------------------------------------------------Window类
 #if 1
-#define Type_Window                 0x5e298cdf
+#define Type_Window                 _T("Window")
 
 #define Proc_Window_SetNoBox        1001    //设置为无边框窗体
 #define Proc_Window_SetWindowMin    1002    //
@@ -512,7 +463,7 @@ enum ZREST
 
 //--------------------------------------------------------------------Option类
 #if 1
-#define Type_Option                         0x8f0a0522
+#define Type_Option                         _T("Option")
 #define Proc_Option_SetSelected             1031    //
 #define Proc_Option_GetSelected             1032    //
 
@@ -533,7 +484,7 @@ enum ZREST
 
 //--------------------------------------------------------------------ScrollBar类
 #if 1
-#define Type_ScrollBar                  0xd2473c6e
+#define Type_ScrollBar                  _T("ScrollBar")
 #define Proc_ScrollBar_SetHorizontal    1050 //设置为横向滚动条
 #define Proc_ScrollBar_SetScrollPos     1051 //设置位置
 #define Proc_ScrollBar_GetScrollPos     1052 //获取位置
@@ -557,8 +508,8 @@ enum ZREST
 #endif //1
 //--------------------------------------------------------------------TreeView类
 #if 1
-#define Type_TreeView                   0xa1526942
-#define Type_TreeNode                   0xa78958f4
+#define Type_TreeView                   _T("TreeView")
+#define Type_TreeNode                   _T("TreeNode")
 
 #define Proc_TreeView_Add                   Proc_Layout_Add  
 #define Proc_TreeView_AddAt                 Proc_Layout_AddAt
@@ -596,13 +547,11 @@ typedef struct _ZuiFuncs {
     uint16_t size;      //结构大小
     uint16_t version;   //结构版本
 
-    ZuiInt(ZCALL *ZuiMsgLoop)();
+    int(ZCALL *ZuiMsgLoop)();
     ZuiVoid(ZCALL *ZuiMsgLoop_exit)(int nRet);
-    ZuiVoid(ZCALL *ZuiPostTask)(ZuiTask task);
     ZuiControl(ZCALL *NewZuiControl)(ZuiText classname, ZuiAny Param1, ZuiAny Param2);
     ZuiVoid(ZCALL *FreeZuiControl)(ZuiControl p, ZuiBool Delayed);
-    ZuiAny(ZCALL *ZuiControlCall)(ZuiInt ProcId, ZuiControl p, ZuiAny Param1, ZuiAny Param2);
-
+    ZuiAny(ZCALL *ZuiControlCall)(int ProcId, ZuiControl p, ZuiAny Param1, ZuiAny Param2);
 
 }ZuiFuncs;
 //js引擎
@@ -622,31 +571,29 @@ extern "C"
     //反初始化
     ZEXPORT ZuiBool ZCALL ZuiUnInit();
     //Zui消息循环.
-    ZEXPORT ZuiInt ZCALL ZuiMsgLoop();
+    ZEXPORT int ZCALL ZuiMsgLoop();
     //退出Zui消息循环.
     ZEXPORT ZuiVoid ZCALL ZuiMsgLoop_exit(int nRet);
-    //投递一个任务到Zui线程
-    ZEXPORT ZuiVoid ZCALL ZuiPostTask(ZuiTask task);
     
     ZEXPORT ZuiControl ZCALL NewZuiControl(ZuiText classname, ZuiAny Param1, ZuiAny Param2);//创建控件
     ZEXPORT ZuiVoid ZCALL FreeZuiControl(ZuiControl p, ZuiBool Delayed);//销毁控件
-    ZEXPORT ZuiAny ZCALL ZuiControlCall(ZuiInt ProcId, ZuiControl p, ZuiAny Param1, ZuiAny Param2);//调用控件处理函数
+    ZEXPORT ZuiAny ZCALL ZuiControlCall(int ProcId, ZuiControl p, ZuiAny Param1, ZuiAny Param2);//调用控件处理函数
     ZEXPORT ZuiControl ZCALL ZuiControlFindName(ZuiControl p, ZuiText Name);
     ZEXPORT ZuiVoid ZCALL ZuiControlRegNotify(ZuiControl p, ZNotifyProc pNotify);
-    ZEXPORT ZuiInt ZCALL ZuiMsgBox(ZuiControl rp, ZuiText text, ZuiText title);
+    ZEXPORT int ZCALL ZuiMsgBox(ZuiControl rp, ZuiText text, ZuiText title);
 
     //载入布局窗口
-    ZEXPORT ZuiControl ZCALL ZuiLayoutLoad(ZuiAny xml, ZuiInt len);
+    ZEXPORT ZuiControl ZCALL ZuiLayoutLoad(ZuiAny xml, int len);
 
     //资源包
-    ZEXPORT ZuiResDB ZCALL ZuiResDBCreateFromBuf(ZuiAny data, ZuiInt len, ZuiText Pass);
+    ZEXPORT ZuiResDB ZCALL ZuiResDBCreateFromBuf(ZuiAny data, int len, ZuiText Pass);
     ZEXPORT ZuiResDB ZCALL ZuiResDBCreateFromFile(ZuiText Path, ZuiText Pass);
     ZEXPORT ZuiVoid ZCALL ZuiResDBDestroy(ZuiResDB db);
     //资源
-    ZEXPORT ZuiRes ZCALL ZuiResDBNewTempRes(ZuiAny b, ZuiInt buflen, ZuiInt type);
-    ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type);//获取一个资源
+    ZEXPORT ZuiRes ZCALL ZuiResDBNewTempRes(ZuiAny b, int buflen, int type);
+    ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, int type);//获取一个资源
     ZEXPORT ZuiVoid ZCALL ZuiResDBDelRes(ZuiRes res);//释放一个资源
-    ZEXPORT ZuiAny ZCALL ZuiResGetData(ZuiRes res,ZuiInt *plen);//获取资源中的数据
+    ZEXPORT ZuiAny ZCALL ZuiResGetData(ZuiRes res,int *plen);//获取资源中的数据
 #ifdef PLATFORM_OS_WIN
     ZEXPORT ZuiBool ZCALL ZuiResDBAddPE(ZuiText name, ZuiAny hInstance);//添加一个PE文件到资源池
 #endif // PLATFORM_OS_WIN

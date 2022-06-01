@@ -137,7 +137,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\skia\;..\..\skia\include;..\..\skia\include\config;..\..\skia\include\core;..\..\libuv\include;..\..\ZUI;..\..\AGG;..\..\AGG\include;..\..\zlib;..\..\duktape;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libuv\include;..\..\ZUI;..\..\AGG;..\..\AGG\include;..\..\zlib;..\..\duktape;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -156,7 +156,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\skia\;..\..\skia\include;..\..\skia\include\config;..\..\skia\include\core;..\..\libuv\include;..\..\ZUI;..\..\AGG;..\..\AGG\include;..\..\zlib;..\..\duktape;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ZUI;..\..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -174,7 +174,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\skia\include;..\..\skia\include\config;..\..\skia\include\core;..\..\skia\;..\..\libuv\include;..\..\ZUI;..\..\AGG;..\..\AGG\include;..\..\zlib;..\..\duktape;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libuv\include;..\..\ZUI;..\..\AGG;..\..\AGG\include;..\..\zlib;..\..\duktape;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -224,7 +224,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\skia\;..\..\skia\include;..\..\skia\include\config;..\..\skia\include\core;..\..\libuv\include;..\..\ZUI;..\..\AGG;..\..\AGG\include;..\..\zlib;..\..\duktape;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libuv\include;..\..\ZUI;..\..\AGG;..\..\AGG\include;..\..\zlib;..\..\duktape;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -288,14 +288,10 @@
     <ClCompile Include="..\..\ZUI\layout\TileLayout.c" />
     <ClCompile Include="..\..\ZUI\layout\VerticalLayout.c" />
     <ClCompile Include="..\..\ZUI\platform\graph\agg.cpp" />
-    <ClCompile Include="..\..\ZUI\platform\graph\skia.cpp" />
+    <ClCompile Include="..\..\ZUI\platform\graph\gdi+.cpp" />
     <ClCompile Include="..\..\ZUI\platform\os\android.c" />
     <ClCompile Include="..\..\ZUI\platform\os\linux.c" />
     <ClCompile Include="..\..\ZUI\platform\os\win.c" />
-    <ClCompile Include="..\..\ZUI\vc6.cpp">
-      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release_vc6|Win32'">false</WholeProgramOptimization>
-    </ClCompile>
-    <ClCompile Include="..\..\ZUI\ZUI.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ZUI\config.h" />
@@ -329,8 +325,8 @@
     <ClInclude Include="..\..\ZUI\layout\VerticalLayout.h" />
     <ClInclude Include="..\..\ZUI\platform\graph\agg.h" />
     <ClInclude Include="..\..\ZUI\platform\graph\format.h" />
+    <ClInclude Include="..\..\ZUI\platform\graph\gdi+.h" />
     <ClInclude Include="..\..\ZUI\platform\graph\graph.h" />
-    <ClInclude Include="..\..\ZUI\platform\graph\skia.h" />
     <ClInclude Include="..\..\ZUI\platform\os\android.h" />
     <ClInclude Include="..\..\ZUI\platform\os\linux.h" />
     <ClInclude Include="..\..\ZUI\platform\os\os.h" />

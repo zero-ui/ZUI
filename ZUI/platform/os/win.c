@@ -5,9 +5,6 @@
 #if (defined PLATFORM_OS_WIN)
 #pragma comment(lib, "Imm32.lib")
 #pragma comment(lib, "Winmm.lib")
-#if ((defined HAVE_UV) && (HAVE_UV == 1))
-uv_loop_t* Global_loop;
-#endif
 
 typedef BOOL(__stdcall *PFUNCUPDATELAYEREDWINDOW)(HWND, HDC, POINT*, SIZE*, HDC, POINT*, COLORREF, BLENDFUNCTION*, DWORD);
 
@@ -22,9 +19,9 @@ static PFUNCUPDATELAYEREDWINDOW g_fUpdateLayeredWindow = NULL;	//UpdateLayeredWi
 typedef struct tagTIMERINFO
 {
     ZuiControl pSender; //接收时钟消息的控件
-    ZuiInt nLocalID;    //时钟ID
+    int nLocalID;    //时钟ID
     HWND hWnd;          //窗口句柄
-    ZuiInt uWinTimer;
+    int uWinTimer;
     ZuiBool bKilled;
 } TIMERINFO;
 #ifdef BUILDING_ZUI_SHARED
@@ -52,9 +49,9 @@ static BOOL __stdcall enumUserWindowsCB(HWND hwnd, LPARAM lParam)
     if (!(wflags & WS_VISIBLE)) return TRUE;
 
     HWND sndWnd;
-    if (!(sndWnd = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL))) return TRUE;
+    if (!(sndWnd = FindWindowEx(hwnd, NULL, _T("SHELLDLL_DefView"), NULL))) return TRUE;
     HWND targetWnd;
-    if (!(targetWnd = FindWindowEx(sndWnd, NULL, L"SysListView32", L"FolderView"))) return TRUE;
+    if (!(targetWnd = FindWindowEx(sndWnd, NULL, _T("SysListView32"), _T("FolderView")))) return TRUE;
 
     HWND* resultHwnd = (HWND*)lParam;
     *resultHwnd = targetWnd;
@@ -67,9 +64,9 @@ static  HWND findDesktopIconWnd()
     return resultHwnd;
 }
 //功能键检查
-static ZuiInt MapKeyState()
+static int MapKeyState()
 {
-    ZuiInt uState = 0;
+    int uState = 0;
     if (GetKeyState(VK_CONTROL) < 0) uState |= MK_CONTROL;
     if (GetKeyState(VK_RBUTTON) < 0) uState |= MK_RBUTTON;
     if (GetKeyState(VK_LBUTTON) < 0) uState |= MK_LBUTTON;
@@ -136,7 +133,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         TEventUI event = { 0 };
         event.ptMouse = p->m_ptLastMousePos;
         event.wKeyState = MapKeyState();
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         if (p->m_pEventHover != NULL) {
             event.Type = ZEVENT_MOUSELEAVE;
             event.pSender = p->m_pEventHover;
@@ -148,8 +145,6 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             ZuiControlEvent(p->m_pEventClick, &event);
         }
 
-
-        //FreeZuiControl(p->m_pRoot, FALSE);
         ZuiControlCall(Proc_OnClose, p->m_pRoot, 0, 0);
         return 0;
     }
@@ -187,6 +182,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     }
     case WM_PAINT:  //绘制
     {
+        //wprintf(L"paint...");
         PAINTSTRUCT ps = { 0 };
         if (p->m_pRoot == NULL) {	//没有控件树
             BeginPaint(p->m_hWnd, &ps);
@@ -229,9 +225,9 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             if (!IsRectEmpty(&rcClient)) {
                 if (p->m_pRoot->m_bUpdateNeeded) {
                     RECT rcRoot = rcClient;
-                    if (p->m_hDcOffscreen != NULL)
-                        ZuiDestroyGraphics(p->m_hDcOffscreen);
-                    p->m_hDcOffscreen = NULL;
+                    //if (p->m_bOffscreenPaint)
+                    //    ZuiDestroyGraphics(p->m_hDcOffscreen);
+                    //p->m_hDcOffscreen = NULL;
                     if (p->m_bLayered) {
                         rcRoot.left += p->m_rcLayeredInset.left;
                         rcRoot.top += p->m_rcLayeredInset.top;
@@ -306,20 +302,12 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         //
         // 渲染屏幕
         //
-        // 创建缓存图形
-        if (p->m_bOffscreenPaint && p->m_hDcOffscreen == NULL)
-        {
-            p->m_hDcOffscreen = ZuiCreateGraphicsInMemory(rcClient.right - rcClient.left, rcClient.bottom - rcClient.top);
-        }
+
         // 开始窗口绘制
         BeginPaint(p->m_hWnd, &ps);
         //是否双缓存绘图
         if (p->m_bOffscreenPaint)
         {
-            //HBITMAP hOldBitmap = (HBITMAP) SelectObject(p->m_hDcOffscreen->hdc, p->m_hDcOffscreen->HBitmap);
-            //int iSaveDC = SaveDC(p->m_hDcOffscreen->hdc);
-            //if (p->m_bLayered && p->m_diLayered.pImageInfo == NULL) {
-
             ZuiControlCall(Proc_OnPaint, p->m_pRoot, p->m_hDcOffscreen, &rcPaint);
 
             for (int i = 0; i < darray_len(p->m_aPostPaintControls); i++) {
@@ -347,7 +335,6 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             }
             else
                 BitBlt(p->m_hDcPaint, rcPaint.left, rcPaint.top, rcPaint.right - rcPaint.left, rcPaint.bottom - rcPaint.top, p->m_hDcOffscreen->hdc, rcPaint.left, rcPaint.top, SRCCOPY);
-            //SelectObject(p->m_hDcOffscreen->hdc, hOldBitmap);
 
             if (p->m_bShowUpdateRect && !p->m_bLayered) { //绘制更新矩形
                 HPEN hOldPen = (HPEN)SelectObject(p->m_hDcPaint, m_hUpdateRectPen);
@@ -355,21 +342,12 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
                 Rectangle(p->m_hDcPaint, rcPaint.left, rcPaint.top, rcPaint.right, rcPaint.bottom);
                 SelectObject(p->m_hDcPaint, hOldPen);
             }
-#if RUN_DEBUG
-            if (ShowDebugRectManager == p) {    //绘制Spy矩形
-                HPEN hOldPen = (HPEN)SelectObject(p->m_hDcPaint, m_hUpdateRectPen);
-                SelectObject(p->m_hDcPaint, GetStockObject(HOLLOW_BRUSH));
-                Rectangle(p->m_hDcPaint, ShowDebugRect->m_rcItem.left, ShowDebugRect->m_rcItem.top, ShowDebugRect->m_rcItem.right, ShowDebugRect->m_rcItem.bottom);
-                SelectObject(p->m_hDcPaint, hOldPen);
-            }
-#endif
         }
         else
         {
             // A standard paint job
-            int iSaveDC = SaveDC(p->m_hDcPaint);
-            ZuiControlCall(Proc_OnPaint, p->m_pRoot, p->m_hDcPaint, &rcPaint);
-            RestoreDC(p->m_hDcPaint, iSaveDC);
+            p->m_hDcOffscreen->hdc = GetDC(hWnd);
+            ZuiControlCall(Proc_OnPaint, p->m_pRoot, p->m_hDcOffscreen, &rcPaint);
         }
         // 全部完毕!
         EndPaint(p->m_hWnd, &ps);
@@ -448,13 +426,25 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             event.pSender = p->m_pFocus;
             event.wParam = wParam;
             event.lParam = lParam;
-            event.dwTimestamp = GetTickCount();
+            event.dwTimestamp = GetTickCount64();
             event.ptMouse = p->m_ptLastMousePos;
             event.wKeyState = MapKeyState();
             ZuiControlEvent(p->m_pRoot, &event);
         }
         if (wParam == SIZE_RESTORED) {
             p->m_bMax = FALSE;
+        }
+        // 创建缓存图形
+        if (p->m_bOffscreenPaint)
+        {
+            ZuiDestroyGraphics(p->m_hDcOffscreen);
+            p->m_hDcOffscreen = ZuiCreateGraphics(LOWORD(lParam),HIWORD(lParam));
+        }
+        else {
+            if (p->m_hDcOffscreen == NULL)
+            {
+                p->m_hDcOffscreen = ZuiCreateGraphics(0, 0);
+            }
         }
         if (p->m_pRoot != NULL)
             ZuiControlNeedUpdate(p->m_pRoot);
@@ -478,7 +468,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
                 TEventUI event = { 0 };
                 event.Type = ZEVENT_TIMER;
                 event.pSender = pTimer->pSender;
-                event.dwTimestamp = GetTickCount();
+                event.dwTimestamp = GetTickCount64();
                 event.ptMouse = p->m_ptLastMousePos;
                 event.wKeyState = MapKeyState();
                 event.wParam = pTimer->nLocalID;
@@ -505,7 +495,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             event.pSender = p->m_pEventHover;
             event.wParam = wParam;
             event.lParam = lParam;
-            event.dwTimestamp = GetTickCount();
+            event.dwTimestamp = GetTickCount64();
             event.ptMouse = pt;
             event.wKeyState = MapKeyState();
             ZuiControlEvent(p->m_pEventHover, &event);
@@ -580,7 +570,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.ptMouse = pt;
         event.wParam = wParam;
         event.lParam = lParam;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         event.wKeyState = MapKeyState();
         if (!p->m_bMouseCapture) {
             pNewHover = NULL;
@@ -635,7 +625,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             TEventUI event = { 0 };
             event.Type = ZEVENT_KILLFOCUS;
             event.pSender = pControl;
-            event.dwTimestamp = GetTickCount();
+            event.dwTimestamp = GetTickCount64();
             ZuiControlEvent(p->m_pFocus, &event);
             p->m_pFocus = NULL;
             return SendMessage(pControl->m_pOs->m_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
@@ -650,7 +640,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.lParam = lParam;
         event.ptMouse = pt;
         event.wKeyState = (WORD)wParam;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(pControl, &event);
         break;
     }
@@ -674,7 +664,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.pSender = pControl;
         event.ptMouse = pt;
         event.wKeyState = (WORD)wParam;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(pControl, &event);
         p->m_pEventClick = pControl;
         break;
@@ -692,7 +682,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.lParam = lParam;
         event.ptMouse = pt;
         event.wKeyState = (WORD)wParam;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControl pClick = p->m_pEventClick;
         p->m_pEventClick = NULL;
         ZuiControlEvent(pClick, &event);
@@ -720,7 +710,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.lParam = lParam;
         event.ptMouse = pt;
         event.wKeyState = (WORD)wParam;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(pControl, &event);
         p->m_pEventClick = pControl;
         break;
@@ -739,7 +729,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.ptMouse = pt;
         event.wKeyState = (WORD)wParam;
         event.lParam = (LPARAM)p->m_pEventClick;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(p->m_pEventClick, &event);
         p->m_pEventClick = NULL;
         break;
@@ -762,7 +752,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.wParam = MAKELPARAM(zDelta < 0 ? SB_LINEDOWN : SB_LINEUP, 0);
         event.lParam = lParam;
         event.wKeyState = MapKeyState();
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(pControl, &event);
 
         // Let's make sure that the scroll item below the cursor is the same as before...
@@ -781,7 +771,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.chKey = (TCHAR)wParam;
         event.ptMouse = p->m_ptLastMousePos;
         event.wKeyState = MapKeyState();
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(p->m_pFocus, &event);
         break;
     }
@@ -797,7 +787,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.chKey = (TCHAR)wParam;
         event.ptMouse = p->m_ptLastMousePos;
         event.wKeyState = MapKeyState();
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(p->m_pFocus, &event);
         p->m_pEventKey = p->m_pFocus;
         break;
@@ -814,7 +804,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.chKey = (TCHAR)wParam;
         event.ptMouse = p->m_ptLastMousePos;
         event.wKeyState = MapKeyState();
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(p->m_pEventKey, &event);
         p->m_pEventKey = NULL;
         break;
@@ -840,7 +830,7 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.lParam = lParam;
         event.ptMouse = pt;
         event.wKeyState = MapKeyState();
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(pControl, &event);
         return 0;
     }
@@ -850,12 +840,12 @@ static LRESULT WINAPI __WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         event.Type = ZEVENT_KILLFOCUS;
         if (p->m_pFocus) {
             event.pSender = p->m_pFocus;
-            event.dwTimestamp = GetTickCount();
+            event.dwTimestamp = GetTickCount64();
             ZuiControlEvent(p->m_pFocus, &event);
             p->m_pFocus = NULL;
         }
         event.pSender = p->m_pRoot;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(p->m_pRoot, &event);
         p->m_bMouseTracking = FALSE;
         p->m_pEventHover = NULL;
@@ -971,7 +961,7 @@ ZuiBool ZuiOsInitialize() {
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszMenuName = NULL;
-    wc.lpszClassName = L"ZUI";
+    wc.lpszClassName = _T("ZUI");
     RegisterClass(&wc);
 
     if (m_hUpdateRectPen == NULL) {
@@ -979,15 +969,7 @@ ZuiBool ZuiOsInitialize() {
         InitCommonControls();
         LoadLibrary(_T("msimg32.dll"));
 }
-#if ((defined HAVE_UV) && (HAVE_UV == 1))
-#include <uv.h>
-    Global_loop = uv_default_loop();
-#endif
     m_hMainThreadId = GetCurrentThreadId();
-#if ((defined HAVE_UV) && (HAVE_UV == 1)) || ((defined HAVE_DUV) && (HAVE_DUV == 1))
-    //用来驱动libuv
-    SetTimer(NULL, 0, 1, NULL);
-#endif
     return TRUE;
 }
 ZuiBool ZuiOsUnInitialize() {
@@ -1008,7 +990,7 @@ ZuiOsWindow ZuiOsCreateWindow(ZuiControl root, ZuiBool show, ZuiAny pcontrol) {
         // Set the dialog root element
         OsWindow->m_pRoot = root;
 
-        OsWindow->m_hWnd = CreateWindowEx(0, L"ZUI", L"",
+        OsWindow->m_hWnd = CreateWindowEx(0, _T("ZUI"), _T(""),
             WS_OVERLAPPEDWINDOW | WS_VISIBLE ,
             CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
             tmphwnd, NULL, GetModuleHandle(NULL),
@@ -1035,9 +1017,7 @@ ZuiOsWindow ZuiOsCreateWindow(ZuiControl root, ZuiBool show, ZuiAny pcontrol) {
         OsWindow->m_nOpacity = 0xFF;
 
         OsWindow->m_ptLastMousePos.x = OsWindow->m_ptLastMousePos.y = -1;
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-        OsWindow->m_ctx = ZuiBuilderJs(OsWindow);
-#endif
+
         OsWindow->m_aTimers = darray_create();
         OsWindow->m_aPostPaintControls = darray_create();
         OsWindow->m_aFoundControls = darray_create();
@@ -1084,7 +1064,7 @@ ZuiBool ZuiOsSetWindowRestor(ZuiOsWindow OsWindow) {
     OsWindow->m_bMax = FALSE;
     return ShowWindow(OsWindow->m_hWnd, SW_RESTORE);
 }
-ZuiBool ZuiOsSetWindowSize(ZuiOsWindow OsWindow, ZuiUInt w, ZuiUInt h) {
+ZuiBool ZuiOsSetWindowSize(ZuiOsWindow OsWindow, int w, int h) {
     ZuiControlCall(Proc_SetFixedWidth, OsWindow->m_pRoot, (ZuiAny)w, NULL);
     ZuiControlCall(Proc_SetFixedHeight, OsWindow->m_pRoot, (ZuiAny)h, NULL);
     return SetWindowPos(OsWindow->m_hWnd, NULL, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
@@ -1159,7 +1139,7 @@ ZuiVoid ZuiOsSetWindowCenter(ZuiOsWindow OsWindow) {
     SetWindowPos(OsWindow->m_hWnd, HWND_TOPMOST, rctomove.left, rctomove.top, rc1.right - rc1.left, rc1.bottom - rc1.top, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
-ZuiVoid ZuiOsSetCursor(ZuiUInt type) {
+ZuiVoid ZuiOsSetCursor(int type) {
     SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(type)));
 }
 ZuiVoid ZuiOsSetCapture(ZuiOsWindow OsWindow) {
@@ -1199,7 +1179,7 @@ ZuiVoid ZuiOsInvalidateRect(ZuiOsWindow p, ZRect *rcItem)
         UnionRect((LPRECT)&p->m_rcLayeredUpdate, (const RECT *)&p->m_rcLayeredUpdate, (const RECT *)&rc);
 }
 //创建时钟
-ZuiBool ZuiOsSetTimer(ZuiControl pControl, ZuiUInt nTimerID, ZuiUInt uElapse) {
+ZuiBool ZuiOsSetTimer(ZuiControl pControl, int nTimerID, int uElapse) {
     TIMERINFO* pTimer;
     ASSERT(pControl != NULL);
     ASSERT(uElapse > 0);
@@ -1235,7 +1215,7 @@ ZuiBool ZuiOsSetTimer(ZuiControl pControl, ZuiUInt nTimerID, ZuiUInt uElapse) {
     return FALSE;
 }
 //销毁时钟
-ZuiBool ZuiOsKillTimer_Id(ZuiControl pControl, ZuiUInt nTimerID) {
+ZuiBool ZuiOsKillTimer_Id(ZuiControl pControl, int nTimerID) {
     ASSERT(pControl != NULL);
     if (pControl->m_pOs) {
         for (int i = 0; i < darray_len(pControl->m_pOs->m_aTimers); i++) {
@@ -1307,7 +1287,7 @@ ZuiVoid ZuiOsSetFocus(ZuiOsWindow p, ZuiControl pControl, ZuiBool bFocusWnd)
         TEventUI event = { 0 };
         event.Type = ZEVENT_KILLFOCUS;
         event.pSender = pControl;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(p->m_pFocus, &event);
         p->m_pFocus = NULL;
     }
@@ -1322,7 +1302,7 @@ ZuiVoid ZuiOsSetFocus(ZuiOsWindow p, ZuiControl pControl, ZuiBool bFocusWnd)
         TEventUI event = { 0 };
         event.Type = ZEVENT_SETFOCUS;
         event.pSender = pControl;
-        event.dwTimestamp = GetTickCount();
+        event.dwTimestamp = GetTickCount64();
         ZuiControlEvent(p->m_pFocus, &event);
     }
 }
@@ -1344,29 +1324,7 @@ ZuiVoid ZuiOsAddDelayedCleanup(ZuiControl pControl, ZuiAny Param1, ZuiAny Param2
     PostMessage(pControl->m_pOs->m_hWnd, WM_APP + 1, (WPARAM)Param1, (LPARAM)Param2);
 }
 
-ZuiInt ZuiOsMsgLoop() {
-#if ((defined HAVE_UV) && (HAVE_UV == 1)) || ((defined HAVE_DUV) && (HAVE_DUV == 1))
-    MSG Msg;
-    while (GetMessage(&Msg, NULL, 0, 0)) {
-        if (WM_QUIT == Msg.message) {
-            break;
-        }
-        else if (WM_APP + 2 == Msg.message) {
-            //任务投递
-            ZuiTask task = Msg.wParam;
-            if (task) {
-                if (task->run)
-                    task->run(task);
-
-
-            }
-        }
-        uv_run(Global_loop, UV_RUN_NOWAIT);
-        TranslateMessage(&Msg);
-        DispatchMessageW(&Msg);
-}
-    return Msg.wParam;
-#else
+int ZuiOsMsgLoop() {
     MSG Msg;
     while (GetMessage(&Msg, NULL, 0, 0)) {
         if (WM_QUIT == Msg.message) {
@@ -1376,7 +1334,6 @@ ZuiInt ZuiOsMsgLoop() {
         DispatchMessageW(&Msg);
     }
     return Msg.wParam;
-#endif
 }
 ZuiVoid ZuiOsMsgLoopExit(int nRet) {
     PostQuitMessage(nRet);
@@ -1384,13 +1341,10 @@ ZuiVoid ZuiOsMsgLoopExit(int nRet) {
 ZuiVoid ZuiOsPostMessage(ZuiControl cp, ZuiAny Msg, ZuiAny Param1, ZuiAny Param2) {
     PostMessage(cp->m_pOs->m_hWnd, (UINT)Msg, (WPARAM)Param1, (LPARAM)Param2);
 }
-ZuiVoid ZuiOsPostTask(ZuiTask task) {
-    //会漏消息
-    PostThreadMessage(m_hMainThreadId, WM_APP + 2, (WPARAM)task, 0);
-}
-ZEXPORT ZuiInt ZuiDoModel(ZuiControl cp)
+
+ZEXPORT int ZuiDoModel(ZuiControl cp)
 {
-    ZuiInt nRet;
+    int nRet;
     HWND chwnd = cp->m_pOs->m_hWnd;
     HWND phwnd = GetWindowOwner((HWND)chwnd);
     SetWindowPos((HWND)chwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
@@ -1418,22 +1372,22 @@ ZEXPORT ZuiInt ZuiDoModel(ZuiControl cp)
     SetFocus((HWND)phwnd);
     return nRet;
 }
-ZuiInt ZuiOsUtf8ToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen)
+int ZuiOsUtf8ToUnicode(ZuiAny str, int slen, ZuiText out, int olen)
 {
     return MultiByteToWideChar(CP_UTF8, 0, str, slen, out, olen);
 }
 
-ZuiInt ZuiOsAsciiToUnicode(ZuiAny str, ZuiInt slen, ZuiText out, ZuiInt olen)
+int ZuiOsAsciiToUnicode(ZuiAny str, int slen, ZuiText out, int olen)
 {
     return MultiByteToWideChar(CP_ACP, 0, str, slen, out, olen);
 }
 
-ZuiInt ZuiOsUnicodeToAscii(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen)
+int ZuiOsUnicodeToAscii(ZuiText str, int slen, ZuiAny out, int olen)
 {
     return WideCharToMultiByte(CP_ACP, 0, str, slen, out, olen, NULL, NULL);
 }
 
-ZuiInt ZuiOsUnicodeToUtf8(ZuiText str, ZuiInt slen, ZuiAny out, ZuiInt olen)
+int ZuiOsUnicodeToUtf8(ZuiText str, int slen, ZuiAny out, int olen)
 {
     return WideCharToMultiByte(CP_UTF8, 0, str, slen, out, olen, NULL, NULL);
 }
@@ -1450,5 +1404,3 @@ ZuiVoid ZuiOsScreenToClient(ZuiControl p, ZuiPoint pt) {
 }
 
 #endif
-
-

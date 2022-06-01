@@ -5,10 +5,10 @@
 typedef struct _ZSplitterBar
 {
     ZuiBool mousedown;
-    ZuiInt type;
+    int type;
     ZCtlProc old_call;
 }*ZuiSplitterBar, ZSplitterBar;
-ZEXPORT ZuiAny ZCALL ZuiSplitterBarProc(ZuiInt ProcId, ZuiControl cp, ZuiSplitterBar p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiSplitterBarProc(int ProcId, ZuiControl cp, ZuiSplitterBar p, ZuiAny Param1, ZuiAny Param2);
 
 
 #endif	//__SplitterBar_H__

@@ -32,36 +32,36 @@ ZuiBool ZuiResDBInit() {
         ZuiResDB p = (ZuiResDB)malloc(sizeof(ZResDB));
         memset(p, 0, sizeof(ZResDB));
         p->type = ZRESDBT_FILE;
-        p->key = Zui_Hash(L"file");
+        p->key = Zui_Hash(_T("file"));
         RB_INSERT(_ZResDB_Tree, &Global_ResDB->resdb, p);
 
         p = (ZuiResDB)malloc(sizeof(ZResDB));
         memset(p, 0, sizeof(ZResDB));
         p->type = ZRESDBT_STREAM;
-        p->key = Zui_Hash(L"stream");
+        p->key = Zui_Hash(_T("stream"));
         RB_INSERT(_ZResDB_Tree, &Global_ResDB->resdb, p);
 
         p = (ZuiResDB)malloc(sizeof(ZResDB));
         memset(p, 0, sizeof(ZResDB));
         p->type = ZRESDBT_URL;
-        p->key = Zui_Hash(L"url");
+        p->key = Zui_Hash(_T("url"));
         RB_INSERT(_ZResDB_Tree, &Global_ResDB->resdb, p);
 #if (defined PLATFORM_OS_WIN)
         p = (ZuiResDB)malloc(sizeof(ZResDB));
         memset(p, 0, sizeof(ZResDB));
         p->type = ZRESDBT_PE;
         p->Instance = m_hInstance;
-        p->key = Zui_Hash(L"pe_zui");
+        p->key = Zui_Hash(_T("pe_zui"));
         RB_INSERT(_ZResDB_Tree, &Global_ResDB->resdb, p);
 #endif
         p = (ZuiResDB)malloc(sizeof(ZResDB));
         memset(p, 0, sizeof(ZResDB));
         p->type = ZRESDBT_FONT;
-        p->key = Zui_Hash(L"font");
+        p->key = Zui_Hash(_T("font"));
         RB_INSERT(_ZResDB_Tree, &Global_ResDB->resdb, p);
 
         //加载默认资源包
-        //ZuiResDBGetRes(L"pe_zui:zip:6666", ZREST_ZIP);
+        //ZuiResDBGetRes(_T("pe_zui:zip:6666"), ZREST_ZIP);
         return TRUE;
     }
     return FALSE;
@@ -81,7 +81,7 @@ ZuiVoid ZuiResDBUnInit() {
     }
     free(Global_ResDB);
 }
-ZEXPORT ZuiResDB ZCALL ZuiResDBCreateFromBuf(ZuiAny data, ZuiInt len, ZuiText Pass)
+ZEXPORT ZuiResDB ZCALL ZuiResDBCreateFromBuf(ZuiAny data, int len, ZuiText Pass)
 {
     ZuiResDB p = (ZuiResDB)malloc(sizeof(ZResDB));
     if (p)
@@ -107,11 +107,7 @@ ZEXPORT ZuiResDB ZCALL ZuiResDBCreateFromBuf(ZuiAny data, ZuiInt len, ZuiText Pa
 					return NULL;
 				}
                 RB_INSERT(_ZResDB_Tree, &Global_ResDB->resdb, p);
-#if (defined HAVE_JS) && (HAVE_JS == 1)
-                //加载引导文件
-                wcscat(txtbuf, L":onload.js");
-                ZuiBuilderJsLoad(Global_ctx, txtbuf);
-#endif
+
                 free(txtbuf);
             }else{
                 p->type = 0;
@@ -176,14 +172,14 @@ ZEXPORT ZuiVoid ZCALL ZuiResDBDestroy(ZuiResDB db)
         free(db);
     }
 }
-ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
+ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, int type) {
     if (Path) {
-        _ZuiText pathbuf[1024];
+        ZuiText pathbuf[1024];
         ZuiText arr[20];
-        ZuiInt arrnum = 20;
+        int arrnum = 20;
         memset(pathbuf, 0, 1024 * sizeof(_ZuiText));
         wcsncpy(pathbuf, Path, 1023);
-        ZuiStingSplit(pathbuf, L":", arr, &arrnum);
+        ZuiStingSplit(pathbuf, _T(":"), arr, &arrnum);
         if (arrnum < 2)
             return NULL;
         //先查找已经加载过的资源里面是否存在
@@ -203,11 +199,11 @@ ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
         }
         //找到对应的资源包并提取资源
         ZuiAny buf = 0;
-        ZuiInt buflen = 0;
+        int buflen = 0;
         /*压缩*/if (db->type == ZRESDBT_ZIP_FILE || db->type == ZRESDBT_ZIP_STREAM)
         {
             //转换路径编码
-            ZuiInt len = ZuiUnicodeToAscii(arr[1], -1, 0, 0);
+            int len = ZuiUnicodeToAscii(arr[1], -1, 0, 0);
             ZuiAny n = malloc(len);
             ZuiUnicodeToAscii(arr[1], len, n, len);
             unz_file_info64 info;
@@ -228,7 +224,7 @@ ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
             free(n);
         }
         /*文件*/else if (db->type == ZRESDBT_FILE) {
-            FILE*f = _wfopen(arr[1], L"rb");
+            FILE*f = _wfopen(arr[1], _T("rb"));
             if (f) {
                 fseek(f, 0L, SEEK_END);
                 buflen = ftell(f); /* 得到文件大小 */
@@ -305,7 +301,7 @@ ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
                     wport = _wtoi(prot);
                     //解析端口
                 }
-                HINTERNET hInet = InternetOpen(L"ZuiHttp", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+                HINTERNET hInet = InternetOpen(_T("ZuiHttp"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
                 if (hInet)
                 {
                     HINTERNET  hConnect = InternetConnect(hInet, host, wport, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
@@ -313,9 +309,9 @@ ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
                     {
                         HINTERNET hOpenRequest = 0;
                         if (https)
-                            hOpenRequest = HttpOpenRequest(hConnect, L"GET", parseptr1, HTTP_VERSION, NULL, 0, INTERNET_FLAG_SECURE, 0); //创建https请求
+                            hOpenRequest = HttpOpenRequest(hConnect, _T("GET"), parseptr1, HTTP_VERSION, NULL, 0, INTERNET_FLAG_SECURE, 0); //创建https请求
                         else
-                            hOpenRequest = HttpOpenRequest(hConnect, L"GET", parseptr1, HTTP_VERSION, NULL, 0, INTERNET_FLAG_DONT_CACHE, 1); //创建http请求
+                            hOpenRequest = HttpOpenRequest(hConnect, _T("GET"), parseptr1, HTTP_VERSION, NULL, 0, INTERNET_FLAG_DONT_CACHE, 1); //创建http请求
                         if (hOpenRequest)
                         {
                             if (HttpSendRequestA(hOpenRequest, NULL, 0, NULL, 0))
@@ -393,9 +389,9 @@ ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
                     free(res);
                     return NULL;
                 }
-                for (ZuiInt i = 2; i < arrnum; i++)
+                for (int i = 2; i < arrnum; i++)
                 {
-                    if (wcsncmp(arr[i], L"src='", 5) == 0) {
+                    if (wcsncmp(arr[i], _T("src='"), 5) == 0) {
                         ZuiText pstr = NULL;
                         img->src.left = _tcstol(arr[i] + 5, &pstr, 10);  ASSERT(pstr);
                         img->src.top = _tcstol(pstr + 1, &pstr, 10);    ASSERT(pstr);
@@ -406,7 +402,7 @@ ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
 
             }
             else if (type == ZREST_TXT) {
-                ZuiInt bufsize;
+                int bufsize;
                 wchar_t *txtbuf;
                 if (ZuiStingIsUtf8(buf, buflen))
                 {
@@ -447,34 +443,34 @@ ZEXPORT ZuiRes ZCALL ZuiResDBGetRes(ZuiText Path, ZuiInt type) {
             {
                 ZuiText name = Global_DefaultFontName;//字体名字
                 ZuiColor color = ARGB(254, 0, 0, 0);
-                ZuiUInt size = 12;
+                unsigned int size = 12;
                 ZuiBool bold = FALSE;
                 ZuiBool italic = FALSE;
-                for (ZuiInt i = 1; i < arrnum; i++)
+                for (int i = 1; i < arrnum; i++)
                 {
-                    if (wcsncmp(arr[i], L"name='", 6) == 0) {
+                    if (wcsncmp(arr[i], _T("name='"), 6) == 0) {
                         if (arr[i][wcslen(arr[i])-1] == '\'')
                         {
                             name = arr[i] + 6;
                             name[wcslen(name)-1] = 0;
                         }
                     }
-                    else if (wcsncmp(arr[i], L"size=", 5) == 0)
+                    else if (wcsncmp(arr[i], _T("size="), 5) == 0)
                     {
                         size = _wtoi(arr[i] + 5);
                     }
-                    else if (wcsncmp(arr[i], L"bold=", 5) == 0)
+                    else if (wcsncmp(arr[i], _T("bold="), 5) == 0)
                     {
                         //粗体
-                        if (wcsncmp(arr[i] + 5, L"true", 4) == 0)
+                        if (wcsncmp(arr[i] + 5, _T("true"), 4) == 0)
                         {
                             bold = TRUE;
                         }
                     }
-                    else if (wcsncmp(arr[i], L"italic=", 7) == 0)
+                    else if (wcsncmp(arr[i], _T("italic="), 7) == 0)
                     {
                         //斜体
-                        if (wcsncmp(arr[i] + 7, L"true", 4) == 0)
+                        if (wcsncmp(arr[i] + 7, _T("true"), 4) == 0)
                         {
                             italic = TRUE;
                         }
@@ -524,14 +520,14 @@ ZEXPORT ZuiVoid ZCALL ZuiResDBDelRes(ZuiRes res) {
     }
 }
 
-ZEXPORT ZuiAny ZCALL ZuiResGetData(ZuiRes res, ZuiInt *plen) {
+ZEXPORT ZuiAny ZCALL ZuiResGetData(ZuiRes res, int *plen) {
     if (res && plen) {
         *plen = res->plen;
         return res->p;
     }
     return NULL;
 }
-ZEXPORT ZuiRes ZCALL ZuiResDBNewTempRes(ZuiAny b, ZuiInt buflen, ZuiInt type) {
+ZEXPORT ZuiRes ZCALL ZuiResDBNewTempRes(ZuiAny b, int buflen, int type) {
     //创建对应的资源类型
     ZuiRes res = malloc(sizeof(ZRes));
     if (!res)
@@ -551,7 +547,7 @@ ZEXPORT ZuiRes ZCALL ZuiResDBNewTempRes(ZuiAny b, ZuiInt buflen, ZuiInt type) {
         }
     }
     else if (type == ZREST_TXT) {
-        ZuiInt bufsize;
+        int bufsize;
         wchar_t *txtbuf;
         if (ZuiStingIsUtf8(buf, buflen))
         {

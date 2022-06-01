@@ -7,8 +7,8 @@ typedef struct _ZListHeaderItem
 {
     ZPoint ptLastMouse;
     ZuiBool m_bDragable;
-    ZuiUInt m_uButtonState;     //按钮状态
-    ZuiInt m_iSepWidth;         //分隔符区域
+    unsigned int m_uButtonState;     //按钮状态
+    int m_iSepWidth;         //分隔符区域
 
 
     ZuiRes m_diNormal;          //通常图片
@@ -24,8 +24,8 @@ typedef struct _ZListHeaderItem
 
     ZuiRes      m_rFont;         //字体
 	ZuiRes		m_rListFont;
-    ZuiUInt     m_uTextStyle;    //字体控制
-	ZuiUInt		m_uListTextStyle;//ListElement字体控制
+    unsigned int     m_uTextStyle;    //字体控制
+	unsigned int		m_uListTextStyle;//ListElement字体控制
     ZuiColor    m_cTextColor;   //字体颜色
 	ZRect		m_rcPadding;
 
@@ -53,9 +53,9 @@ typedef struct _ZListBody
 /**列表元素结构*/
 typedef struct _ZListElement
 {
-    ZuiInt m_iIndex;        //列索引
+    int m_iIndex;        //列索引
     ZuiBool m_bSelected;    //选中
-    ZuiUInt m_uButtonState;    //列状态
+    unsigned int m_uButtonState;    //列状态
     ZuiControl m_pOwner;    //宿主
 
     ZuiAny old_udata;
@@ -85,10 +85,10 @@ typedef struct _ZListInfo
 typedef struct _ZList
 {
     ZuiBool m_bScrollSelect;
-    ZuiInt m_iCurSel;           //现行选中项
+    int m_iCurSel;           //现行选中项
     DArray* m_aSelItems;        //选中项数组
     ZuiBool m_bMultiSel;        //允许多选
-    ZuiInt m_iExpandedItem;
+    int m_iExpandedItem;
 
     ZuiControl m_pList;     //列表体容器
     ZuiControl m_pHeader;   //表头容器
@@ -98,11 +98,11 @@ typedef struct _ZList
     ZuiAny old_udata;
     ZCtlProc old_call;
 }*ZuiList, ZList;
-ZEXPORT ZuiAny ZCALL ZuiListProc(ZuiInt ProcId, ZuiControl cp, ZuiList p, ZuiAny Param1, ZuiAny Param2);
-ZEXPORT ZuiAny ZCALL ZuiListBodyProc(ZuiInt ProcId, ZuiControl cp, ZuiListBody p, ZuiAny Param1, ZuiAny Param2);
-ZEXPORT ZuiAny ZCALL ZuiListElementProc(ZuiInt ProcId, ZuiControl cp, ZuiListElement p, ZuiAny Param1, ZuiAny Param2);
-ZEXPORT ZuiAny ZCALL ZuiListHeaderProc(ZuiInt ProcId, ZuiControl cp, ZuiListHeader p, ZuiAny Param1, ZuiAny Param2);
-ZEXPORT ZuiAny ZCALL ZuiListHeaderItemProc(ZuiInt ProcId, ZuiControl cp, ZuiListHeaderItem p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiListProc(int ProcId, ZuiControl cp, ZuiList p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiListBodyProc(int ProcId, ZuiControl cp, ZuiListBody p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiListElementProc(int ProcId, ZuiControl cp, ZuiListElement p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiListHeaderProc(int ProcId, ZuiControl cp, ZuiListHeader p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiListHeaderItemProc(int ProcId, ZuiControl cp, ZuiListHeaderItem p, ZuiAny Param1, ZuiAny Param2);
 
 
 #endif  //__LIST_H__

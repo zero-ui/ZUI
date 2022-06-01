@@ -1,5 +1,0 @@
-project(dukluv)
-include_directories(../libuv/include ../duktape)
-aux_source_directory(./ src)
-add_library(dukluv STATIC ${src})
-set_target_properties(dukluv PROPERTIES output_name "dukluv")

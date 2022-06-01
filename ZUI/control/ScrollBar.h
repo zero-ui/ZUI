@@ -35,19 +35,19 @@ typedef struct _ZScrollBar
     //头按钮
     ZuiBool m_bShowButton1;
     ZRect m_rcButton1;
-    ZuiUInt m_uButton1State;
+    unsigned int m_uButton1State;
 
     //尾按钮
     ZuiBool m_bShowButton2;
     ZRect m_rcButton2;
-    ZuiUInt m_uButton2State;
+    unsigned int m_uButton2State;
 
     //滑块按钮
     ZRect m_rcThumb;
-    ZuiUInt m_uThumbState;
+    unsigned int m_uThumbState;
 
     ZCtlProc old_call;
 }*ZuiScrollBar, ZScrollBar;
-ZEXPORT ZuiAny ZCALL ZuiScrollBarProc(ZuiInt ProcId, ZuiControl cp, ZuiScrollBar p, ZuiAny Param1, ZuiAny Param2);
+ZEXPORT ZuiAny ZCALL ZuiScrollBarProc(int ProcId, ZuiControl cp, ZuiScrollBar p, ZuiAny Param1, ZuiAny Param2);
 
 #endif // __UISCROLLBAR_H__
